@@ -1,0 +1,20 @@
+[Unit]
+Description=NASA EONET Spark Structured Streaming Consumer
+After=network.target kafka.service
+Requires=kafka.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline
+Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+Environment="HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop"
+Environment="YARN_CONF_DIR=/opt/hadoop/etc/hadoop"
+Environment="PYSPARK_DRIVER_PYTHON=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/venv/bin/python"
+Environment="PYSPARK_PYTHON=python3"
+ExecStart=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/setup/scripts/run_spark_streaming.sh
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
