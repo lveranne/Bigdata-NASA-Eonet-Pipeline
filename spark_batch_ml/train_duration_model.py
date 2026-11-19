@@ -138,6 +138,16 @@ def main() -> None:
     if not args.skip_save:
         best_pipeline.write().overwrite().save("hdfs://master:9000/models/eonet/duration_pipeline")
         print("Saved best tuned PipelineModel to hdfs://master:9000/models/eonet/duration_pipeline")
+        import subprocess
+        subprocess.run([
+            "/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/venv/bin/python",
+            "/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/setup/scripts/log_lifecycle_event.py",
+            "--type", "MODEL_RETRAIN",
+            "--component", "GBTRegressor",
+            "--title", f"Duration Model Retrained (MAE={gbt_mae:.2f}h)",
+            "--details", f"Rows={total_rows}, Executors={args.executors_label}, RMSE={gbt_rmse:.2f}h, MAE={gbt_mae:.2f}h",
+            "--tags", "retrain,gbt,duration"
+        ], check=False)
 
 
 if __name__ == "__main__":

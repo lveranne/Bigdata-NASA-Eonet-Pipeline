@@ -109,6 +109,16 @@ def main() -> None:
     print(f"[RandomForestClassifier] Test Weighted F1-Score = {test_f1:.4f}")
 
     best_clf.write().overwrite().save("hdfs://master:9000/models/eonet/severity_classifier")
+    import subprocess
+    subprocess.run([
+        "/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/venv/bin/python",
+        "/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/setup/scripts/log_lifecycle_event.py",
+        "--type", "MODEL_RETRAIN",
+        "--component", "RandomForestClassifier",
+        "--title", f"Severity Classifier Retrained (Weighted F1={test_f1:.4f})",
+        "--details", f"3-class severity model updated on HDFS (Weighted F1={test_f1:.4f})",
+        "--tags", "retrain,rf,severity"
+    ], check=False)
 
     # Combine duration predictions (GBTRegressor) + severity tier predictions (RandomForestClassifier)
     dur_model = PipelineModel.load("hdfs://master:9000/models/eonet/duration_pipeline")
