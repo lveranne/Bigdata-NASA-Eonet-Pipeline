@@ -138,7 +138,7 @@ def main() -> None:
     # 4. Deduplicate within a 2-hour watermark for Silver & TimescaleDB
     cleaned = (
         parsed
-        .withWatermark("event_time_utc", "2 hours")
+        .withWatermark("ingested_at_utc", "2 hours")
         .dropDuplicates(["record_id"])
     )
 
