@@ -37,7 +37,7 @@ def main() -> None:
         silver_df.write
         .mode("overwrite")
         .partitionBy("category_id", "event_date")
-        .parquet("hdfs://master:9000/datalake/cleaned/eonet")
+        .parquet("hdfs://master:9000/datalake/silver/eonet")
     )
 
     # 3. Upsert all deduplicated records into TimescaleDB on worker
