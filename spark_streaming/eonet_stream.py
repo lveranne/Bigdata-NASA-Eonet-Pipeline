@@ -133,6 +133,17 @@ def write_silver_and_timescale(batch_df, batch_id: int) -> None:
     try:
         with conn.cursor() as cur:
             execute_values(cur, sql, rows, page_size=500)
+            cur.execute("""
+                UPDATE eonet_predictions p
+                SET status = latest.status
+                FROM (
+                    SELECT DISTINCT ON (event_id) event_id, status
+                    FROM eonet_events_stream
+                    ORDER BY event_id, ingested_at_utc DESC
+                ) latest
+                WHERE p.event_id = latest.event_id
+                  AND p.status IS DISTINCT FROM latest.status;
+            """)
         conn.commit()
     finally:
         conn.close()
