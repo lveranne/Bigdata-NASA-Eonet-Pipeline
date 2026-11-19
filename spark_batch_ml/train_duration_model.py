@@ -25,7 +25,7 @@ def main() -> None:
     spark.sparkContext.setLogLevel("WARN")
 
     # 1. Read Silver Parquet from HDFS and collapse to one row per unique closed event_id
-    df = spark.read.parquet("hdfs://master:9000/datalake/cleaned/eonet")
+    df = spark.read.parquet("hdfs://master:9000/datalake/silver/eonet")
     closed_events = (
         df.filter(
             (F.col("status") == "closed")
