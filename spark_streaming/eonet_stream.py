@@ -1,11 +1,14 @@
 import os
+import json
+from datetime import datetime, timezone
 import psycopg2
 from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
+from pyspark.sql.streaming import StreamingQueryListener
 from pyspark.sql.types import (
-    StructType, StructField, StringType, DoubleType
+    StructType, StructField, StringType, DoubleType, TimestampType
 )
 
 load_dotenv()
@@ -20,16 +23,16 @@ TS_PASSWORD = os.getenv("TIMESCALE_PASSWORD", "eonet_pass")
 
 EVENT_SCHEMA = StructType([
     StructField("schema_version", StringType(), True),
-    StructField("record_id", StringType(), False),
-    StructField("event_id", StringType(), False),
+    StructField("record_id", StringType(), True),
+    StructField("event_id", StringType(), True),
     StructField("title", StringType(), True),
-    StructField("category_id", StringType(), False),
+    StructField("category_id", StringType(), True),
     StructField("source_id", StringType(), True),
-    StructField("status", StringType(), False),
-    StructField("event_time_utc", StringType(), False),
-    StructField("first_seen_utc", StringType(), True),
-    StructField("closed_time_utc", StringType(), True),
-    StructField("ingested_at_utc", StringType(), False),
+    StructField("status", StringType(), True),
+    StructField("event_time_utc", TimestampType(), True),
+    StructField("first_seen_utc", TimestampType(), True),
+    StructField("closed_time_utc", TimestampType(), True),
+    StructField("ingested_at_utc", TimestampType(), True),
     StructField("longitude", DoubleType(), True),
     StructField("latitude", DoubleType(), True),
     StructField("magnitude_value", DoubleType(), True),
@@ -41,10 +44,61 @@ EVENT_SCHEMA = StructType([
 ])
 
 
-def upsert_to_timescaledb(batch_df, batch_id: int) -> None:
-    """Idempotently upsert each Spark micro-batch into TimescaleDB."""
+class TimescaleMetricsListener(StreamingQueryListener):
+    def onQueryStarted(self, event):
+        pass
+
+    def onQueryTerminated(self, event):
+        pass
+
+    def onQueryProgress(self, event):
+        try:
+            p = json.loads(event.progress.json)
+            now_utc = datetime.now(timezone.utc)
+            batch_id = int(p.get("batchId", 0))
+            num_rows = int(p.get("numInputRows", 0))
+            in_rps = float(p.get("inputRowsPerSecond", 0.0) or 0.0)
+            proc_rps = float(p.get("processedRowsPerSecond", 0.0) or 0.0)
+            dur_ms = int(p.get("durationMs", {}).get("triggerExecution", 0))
+
+            wm_str = p.get("eventTime", {}).get("watermark")
+            wm_delay = 0.0
+            if wm_str:
+                wm_dt = datetime.fromisoformat(wm_str.replace("Z", "+00:00"))
+                wm_delay = max(0.0, (now_utc - wm_dt).total_seconds())
+
+            conn = psycopg2.connect(
+                host=TS_HOST, port=TS_PORT, dbname=TS_DB, user=TS_USER, password=TS_PASSWORD
+            )
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO eonet_stream_metrics (
+                        batch_time_utc, batch_id, num_input_rows,
+                        input_rows_per_sec, processed_rows_per_sec,
+                        batch_duration_ms, watermark_delay_sec
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+                    """,
+                    (now_utc, batch_id, num_rows, in_rps, proc_rps, dur_ms, wm_delay),
+                )
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"[MetricsListener Warn] {e}")
+
+
+def write_silver_and_timescale(batch_df, batch_id: int) -> None:
     if batch_df.rdd.isEmpty():
         return
+
+    dedup_df = batch_df.dropDuplicates(["record_id"]).withColumn("event_date", F.to_date("event_time_utc"))
+
+    (
+        dedup_df.write
+        .mode("append")
+        .partitionBy("category_id", "event_date")
+        .parquet("hdfs://master:9000/datalake/cleaned/eonet")
+    )
 
     rows = [
         (
@@ -54,7 +108,7 @@ def upsert_to_timescaledb(batch_df, batch_id: int) -> None:
             r.magnitude_unit, r.temp_2m_c, r.humidity_2m_pct,
             r.wind_10m_ms, r.precip_mm_day
         )
-        for r in batch_df.collect()
+        for r in dedup_df.collect()
     ]
 
     sql = """
@@ -73,19 +127,13 @@ def upsert_to_timescaledb(batch_df, batch_id: int) -> None:
             wind_10m_ms = EXCLUDED.wind_10m_ms,
             precip_mm_day = EXCLUDED.precip_mm_day;
     """
-
     conn = psycopg2.connect(
-        host=TS_HOST,
-        port=TS_PORT,
-        dbname=TS_DB,
-        user=TS_USER,
-        password=TS_PASSWORD,
+        host=TS_HOST, port=TS_PORT, dbname=TS_DB, user=TS_USER, password=TS_PASSWORD
     )
     try:
         with conn.cursor() as cur:
-            execute_values(cur, sql, rows)
+            execute_values(cur, sql, rows, page_size=500)
         conn.commit()
-        print(f"[Batch {batch_id}] Upserted {len(rows)} records into TimescaleDB.")
     finally:
         conn.close()
 
@@ -98,68 +146,42 @@ def main() -> None:
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("WARN")
+    spark.streams.addListener(TimescaleMetricsListener())
 
-    # 1. Read raw stream from Kafka
     raw_kafka = (
         spark.readStream
         .format("kafka")
         .option("kafka.bootstrap.servers", KAFKA_BOOTSTRAP)
         .option("subscribe", KAFKA_TOPIC)
-        .option("startingOffsets", "earliest")
+        .option("startingOffsets", "latest")
         .option("failOnDataLoss", "false")
         .load()
     )
 
-    # 2. Parse JSON and cast UTC timestamps
     parsed = (
         raw_kafka
         .select(F.from_json(F.col("value").cast("string"), EVENT_SCHEMA).alias("data"))
         .select("data.*")
         .filter(F.col("record_id").isNotNull() & F.col("event_time_utc").isNotNull())
-        .withColumn("event_time_utc", F.to_timestamp("event_time_utc"))
-        .withColumn("first_seen_utc", F.to_timestamp("first_seen_utc"))
-        .withColumn("closed_time_utc", F.to_timestamp("closed_time_utc"))
-        .withColumn("ingested_at_utc", F.to_timestamp("ingested_at_utc"))
-        .withColumn("event_date", F.to_date("event_time_utc"))
+        .withColumn("ingest_date", F.to_date("ingested_at_utc"))
     )
 
-    # 3. Sink A: Raw Bronze Parquet in HDFS (partitioned by event_date)
-    raw_hdfs_query = (
+    bronze_query = (
         parsed.writeStream
         .format("parquet")
-        .outputMode("append")
         .option("path", "hdfs://master:9000/datalake/raw/eonet")
-        .option("checkpointLocation", "hdfs://master:9000/checkpoints/eonet_raw")
-        .partitionBy("event_date")
+        .option("checkpointLocation", "hdfs://master:9000/checkpoints/eonet/bronze")
+        .partitionBy("ingest_date")
         .trigger(processingTime="30 seconds")
         .start()
     )
 
-    # 4. Deduplicate within a 2-hour watermark for Silver & TimescaleDB
-    cleaned = (
-        parsed
-        .withWatermark("ingested_at_utc", "2 hours")
-        .dropDuplicates(["record_id"])
-    )
+    silver_stream = parsed.withWatermark("ingested_at_utc", "2 hours")
 
-    # 5. Sink B: Cleaned Silver Parquet in HDFS (partitioned by category_id, event_date)
-    cleaned_hdfs_query = (
-        cleaned.writeStream
-        .format("parquet")
-        .outputMode("append")
-        .option("path", "hdfs://master:9000/datalake/cleaned/eonet")
-        .option("checkpointLocation", "hdfs://master:9000/checkpoints/eonet_cleaned")
-        .partitionBy("category_id", "event_date")
-        .trigger(processingTime="30 seconds")
-        .start()
-    )
-
-    # 6. Sink C: Real-time TimescaleDB upsert on worker
-    timescale_query = (
-        cleaned.writeStream
-        .foreachBatch(upsert_to_timescaledb)
-        .outputMode("update")
-        .option("checkpointLocation", "hdfs://master:9000/checkpoints/eonet_timescale")
+    silver_query = (
+        silver_stream.writeStream
+        .foreachBatch(write_silver_and_timescale)
+        .option("checkpointLocation", "hdfs://master:9000/checkpoints/eonet/silver")
         .trigger(processingTime="30 seconds")
         .start()
     )
