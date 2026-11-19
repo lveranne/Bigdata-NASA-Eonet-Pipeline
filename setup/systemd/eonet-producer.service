@@ -1,0 +1,16 @@
+[Unit]
+Description=NASA EONET v3 + NASA POWER Kafka Producer
+After=network.target kafka.service
+Requires=kafka.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline
+EnvironmentFile=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/.env
+ExecStart=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/venv/bin/python /home/ubuntu/Bigdata-NASA-Eonet-Pipeline/producer/kafka_producer.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
