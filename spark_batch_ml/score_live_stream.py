@@ -24,13 +24,7 @@ def upsert_predictions(rows: list) -> None:
             event_id, category_id, status,
             predicted_duration_hr, predicted_severity, severity_label, scored_at_utc
         ) VALUES %s
-        ON CONFLICT (event_id) DO UPDATE SET
-            category_id = EXCLUDED.category_id,
-            status = EXCLUDED.status,
-            predicted_duration_hr = EXCLUDED.predicted_duration_hr,
-            predicted_severity = EXCLUDED.predicted_severity,
-            severity_label = EXCLUDED.severity_label,
-            scored_at_utc = EXCLUDED.scored_at_utc;
+        ON CONFLICT (event_id) DO NOTHING;
     """
     conn = psycopg2.connect(
         host=TS_HOST, port=TS_PORT, dbname=TS_DB, user=TS_USER, password=TS_PASSWORD
@@ -44,6 +38,26 @@ def upsert_predictions(rows: list) -> None:
         conn.close()
 
 
+import subprocess
+
+def _list_gz_parquet_files(hdfs_dir: str) -> list[str]:
+    proc = subprocess.run(
+        ["hdfs", "dfs", "-ls", "-R", hdfs_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    files = []
+    for line in proc.stdout.splitlines():
+        parts = line.split()
+        if parts and parts[-1].endswith(".gz.parquet"):
+            p = parts[-1]
+            if not p.startswith("hdfs://"):
+                p = f"hdfs://master:9000{p}"
+            files.append(p)
+    return files
+
+
 def main() -> None:
     spark = (
         SparkSession.builder
@@ -54,8 +68,16 @@ def main() -> None:
     spark.sparkContext.setLogLevel("WARN")
 
     model = PipelineModel.load("hdfs://master:9000/models/eonet/duration_pipeline")
-    df = spark.read.parquet("hdfs://master:9000/datalake/silver/eonet")
-
+    df_hist = spark.read.parquet("hdfs://master:9000/datalake/silver/eonet")
+    gz_files = _list_gz_parquet_files("/datalake/cleaned/eonet")
+    if gz_files:
+        df_live = spark.read.option("mergeSchema", "true").parquet(*gz_files)
+        for col_name, field in [(f.name, f.dataType) for f in df_hist.schema.fields]:
+            if col_name in df_live.columns and str(df_live.schema[col_name].dataType) != str(field):
+                df_live = df_live.withColumn(col_name, F.col(col_name).cast(field))
+        df = df_hist.unionByName(df_live, allowMissingColumns=True)
+    else:
+        df = df_hist
     events = (
         df.groupBy("event_id", "category_id")
         .agg(
@@ -72,6 +94,17 @@ def main() -> None:
         .withColumn("start_month", F.month("start_utc").cast("double"))
         .withColumn("abs_latitude", F.abs(F.col("latitude")))
         .withColumn("has_magnitude", F.when(F.col("magnitude_value").isNotNull(), 1.0).otherwise(0.0))
+        .fillna({
+            "latitude": 0.0,
+            "longitude": 0.0,
+            "abs_latitude": 0.0,
+            "start_month": 6.0,
+            "magnitude_value": 0.0,
+            "temp_2m_c": 15.0,
+            "humidity_2m_pct": 65.0,
+            "wind_10m_ms": 5.0,
+            "precip_mm_day": 0.0,
+        })
     )
 
     scored = (
