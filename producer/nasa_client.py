@@ -1,4 +1,3 @@
-import os
 import time
 import requests
 from datetime import datetime, timezone
@@ -6,7 +5,6 @@ from datetime import datetime, timezone
 EONET_URL = "https://eonet.gsfc.nasa.gov/api/v3/events"
 POWER_DAILY_URL = "https://power.larc.nasa.gov/api/temporal/daily/point"
 
-# Local weather cache {(round(lat,1), round(lon,1), YYYYMMDD): dict} to respect NASA POWER rate limits
 _weather_cache = {}
 
 
@@ -62,15 +60,13 @@ def parse_iso_utc(ts_str: str) -> datetime:
 
 
 def build_event_messages(event: dict, enrich_weather: bool = True, latest_only: bool = False) -> list:
-    """Converts a raw NASA EONET v3 event into Checkpoint 1 Kafka messages."""
     event_id = event["id"]
     title = event.get("title", "")
     categories = event.get("categories", [])
     category_id = categories[0]["id"] if categories else "unknown"
     sources = event.get("sources", [])
     source_id = sources[0]["id"] if sources else "NASA"
-    closed_raw = event.get("closed")
-    closed_dt = parse_iso_utc(closed_raw)
+    closed_dt = parse_iso_utc(event.get("closed"))
     closed_time_utc = closed_dt.strftime("%Y-%m-%dT%H:%M:%SZ") if closed_dt else None
 
     geometries = sorted(event.get("geometry", []), key=lambda g: g.get("date", ""))
@@ -84,11 +80,10 @@ def build_event_messages(event: dict, enrich_weather: bool = True, latest_only: 
     messages = []
     now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    for idx, geo in enumerate(selected_geos):
+    for geo in selected_geos:
         obs_dt = parse_iso_utc(geo["date"])
         event_time_utc = obs_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
         coords = geo.get("coordinates", [0.0, 0.0])
-        # Handle Polygon vs Point coordinates safely
         if isinstance(coords[0], list):
             lon, lat = float(coords[0][0][0]), float(coords[0][0][1])
         else:
