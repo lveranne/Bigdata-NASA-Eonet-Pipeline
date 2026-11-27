@@ -63,4 +63,4 @@ def run_backfill(days: int = 1825, max_events: int = 3000, enrich_weather: bool 
 
 
 if __name__ == "__main__":
-    run_backfill(days=1825, max_events=3000, enrich_weather=True)
+    run_backfill(days=1825, max_events=15000, enrich_weather=False)
