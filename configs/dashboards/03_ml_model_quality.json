@@ -20,9 +20,45 @@
         },
         "enable": true,
         "hide": false,
+        "iconColor": "#FF9830",
+        "name": "Service Restart",
+        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ' (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('service_restart', 'service_start', 'service_stop') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${DS_POSTGRESQL}"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#5794F2",
+        "name": "Model Retrain",
+        "rawQuery": "SELECT event_ts AS time, 'RETRAIN (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('model_retrain_benchmark', 'model_retrain', 'retrain') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${DS_POSTGRESQL}"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#B877D9",
+        "name": "Deployment",
+        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ': ' || model_version AS title, COALESCE(details::text, component) AS text FROM eonet_lifecycle_events WHERE event_type IN ('champion_deployed', 'champion_promoted', 'deployment') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${DS_POSTGRESQL}"
+        },
+        "enable": true,
+        "hide": false,
         "iconColor": "#F2495C",
-        "name": "Train / Test Split & Lifecycle Markers",
-        "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;",
+        "name": "Train / Test Split",
+        "rawQuery": "SELECT event_ts AS time, 'TRAIN / TEST SPLIT (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('train_test_cutoff', 'temporal_train_test_split') AND $__timeFilter(event_ts) ORDER BY event_ts;",
         "showIn": 0
       }
     ]
@@ -485,5 +521,5 @@
   "timezone": "utc",
   "title": "03 - NASA EONET Model Quality & Champion/Challenger Evaluation",
   "uid": "eonet-ml-quality-v1",
-  "version": 4
+  "version": 5
 }
