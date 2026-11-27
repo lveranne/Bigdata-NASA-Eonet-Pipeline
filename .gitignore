@@ -7,3 +7,4 @@ venv/
 *.log
 *.parquet
 .DS_Store
+producer/.seen_records.json
