@@ -5,7 +5,7 @@
         "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
         "enable": true,
         "iconColor": "#F2495C",
-        "name": "Pipeline Lifecycle Events",
+        "name": "Train/Test Split & Lifecycle Markers",
         "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;"
       }
     ]
@@ -15,59 +15,89 @@
   "panels": [
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "fillOpacity": 85 }, "unit": "h" } },
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": true
+          },
+          "unit": "h"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*\\(test\\).*" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "dash": [8, 6], "fill": "dash" } },
+              { "id": "custom.lineWidth", "value": 3 },
+              { "id": "custom.pointSize", "value": 6 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
       "id": 1,
+      "options": {
+        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "asc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket('30 days', scored_at_utc) AS time, model_version || ' (' || data_split || ')' AS metric, ROUND(AVG(abs_error_hours)::numeric, 2) AS mae_hours FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL AND $__timeFilter(scored_at_utc) GROUP BY 1, 2 ORDER BY 1, 2;",
+          "refId": "A"
+        }
+      ],
+      "title": "Model Prediction Error (MAE Hours): Before Split (train, solid) vs. Testing Era (test, dashed)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "fillOpacity": 85 }, "unit": "h" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "id": 2,
       "options": { "orientation": "vertical", "showValue": "always" },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT model_version, ROUND(AVG(pred_duration_hours)::numeric, 1) AS mean_pred_hours, ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY pred_duration_hours)::numeric, 1) AS median_pred_hours FROM eonet_predictions GROUP BY 1 ORDER BY 1;", "refId": "A" }],
-      "title": "Mean vs. Median Predicted Duration by Model (Hours)",
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT model_version || ' [' || data_split || ']' AS model_split, ROUND(AVG(abs_error_hours)::numeric, 1) AS mae_hours, ROUND(SQRT(AVG(squared_error_hours))::numeric, 1) AS rmse_hours FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL GROUP BY 1 ORDER BY 1;", "refId": "A" }],
+      "title": "Train vs. Test Split Error Summary (MAE & RMSE Hours)",
       "type": "barchart"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
       "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" } },
-      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 0 },
-      "id": 2,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "id": 3,
       "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true }, "pieType": "donut" },
       "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT 'Tier ' || pred_severity_tier::text AS severity_tier, COUNT(*) AS count FROM eonet_predictions WHERE model_version = 'v3_xgboost' GROUP BY 1 ORDER BY 1;", "refId": "A" }],
-      "title": "Predicted Severity Tier Distribution (RandomForestClassifier)",
+      "title": "Live Open Hazard Severity Distribution (RandomForestClassifier)",
       "type": "piechart"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "drawStyle": "line", "lineWidth": 2, "pointSize": 5, "showPoints": "always" },
-          "noValue": "Awaiting post-cutoff (2026-11-27) hazard closures for live MAE",
-          "unit": "h"
-        }
-      },
-      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 9 },
-      "id": 3,
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "time_series", "rawQuery": true, "rawSql": "SELECT time_bucket('1 hour', scored_at_utc) AS time, model_version, AVG(abs_error_hours) AS mae_hours FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL AND $__timeFilter(scored_at_utc) GROUP BY 1, 2 ORDER BY 1;", "refId": "A" }],
-      "title": "Out-of-Time Closed Event Rolling MAE (>= 2026-11-27)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
       "fieldConfig": { "defaults": {} },
-      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 9 },
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 18 },
       "id": 4,
       "options": { "showHeader": true },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT model_version, COUNT(*) AS scored_events, ROUND(AVG(pred_duration_hours)::numeric, 1) AS avg_pred_h, ROUND(MIN(pred_duration_hours)::numeric, 1) AS min_pred_h, ROUND(MAX(pred_duration_hours)::numeric, 1) AS max_pred_h, COUNT(abs_error_hours) AS closed_eval_n, ROUND(AVG(abs_error_hours)::numeric, 1) AS live_mae_h FROM eonet_prediction_history GROUP BY 1 ORDER BY 1;", "refId": "A" }],
-      "title": "Shadow Model Scorecard (v1_baseline vs v2_gbt vs v3_xgboost)",
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT model_version, data_split, COUNT(*) AS evaluated_events, ROUND(AVG(pred_duration_hours)::numeric, 1) AS avg_pred_h, ROUND(AVG(actual_duration_hours)::numeric, 1) AS avg_actual_h, ROUND(AVG(abs_error_hours)::numeric, 1) AS mae_h, ROUND(SQRT(AVG(squared_error_hours))::numeric, 1) AS rmse_h FROM eonet_prediction_history GROUP BY 1, 2 ORDER BY 1, 2;", "refId": "A" }],
+      "title": "Complete Model Benchmark & Live Evaluation Scorecard (Train vs. Test Split)",
       "type": "table"
     }
   ],
   "schemaVersion": 39,
-  "tags": ["nasa-eonet", "mlops", "xgboost", "spark-mllib"],
+  "tags": ["nasa-eonet", "mlops", "xgboost", "train-test-split"],
   "templating": {
     "list": [{ "label": "PostgreSQL / TimescaleDB", "name": "DS_POSTGRESQL", "query": "grafana-postgresql-datasource", "refresh": 1, "type": "datasource" }]
   },
-  "time": { "from": "now-6h", "to": "now" },
+  "time": { "from": "now-5y", "to": "now" },
   "timezone": "utc",
-  "title": "03 - NASA EONET Model Quality & Challenger Comparison",
+  "title": "03 - NASA EONET Model Quality & Train/Test Split Error",
   "uid": "eonet-ml-quality-v1",
-  "version": 1
+  "version": 2
 }
