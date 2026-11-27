@@ -2,17 +2,43 @@
   "annotations": {
     "list": [
       {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
         "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
         "enable": true,
+        "hide": false,
         "iconColor": "#F2495C",
         "name": "Pipeline Lifecycle Events",
-        "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;"
+        "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
       }
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "links": [],
   "panels": [
+    {
+      "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "### NASA EONET v3 + NASA POWER — Real-Time Global Hazard Operations & Remaining Horizon Forecast\nLive telemetry ingested via **Apache Kafka (KRaft)** $\\rightarrow$ enriched & scored in **Apache Spark Structured Streaming** $\\rightarrow$ persisted in **TimescaleDB**. Use **Category** or **Search Event (ID or Title)** above to isolate any hazard and auto-zoom the map.",
+        "mode": "markdown"
+      },
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
       "fieldConfig": {
@@ -21,19 +47,21 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 3 },
       "id": 1,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "justifyMode": "center",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value"
       },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.event_id) AS active_open_hazards FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.event_id) AS active_open_hazards FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
           "refId": "A"
         }
       ],
@@ -57,19 +85,21 @@
           "unit": "h"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 3 },
       "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "justifyMode": "center",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value"
       },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT ROUND(AVG(pred_remaining_hours)::numeric, 1) AS avg_remaining_h FROM (SELECT DISTINCT ON (p.event_id) p.pred_remaining_hours FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT ROUND(AVG(pred_remaining_hours)::numeric, 1) AS avg_remaining_h FROM (SELECT DISTINCT ON (p.event_id) p.pred_remaining_hours FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s;",
           "refId": "A"
         }
       ],
@@ -92,19 +122,21 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 3 },
       "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "justifyMode": "center",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value"
       },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(*) AS high_critical_count FROM (SELECT DISTINCT ON (p.event_id) p.pred_severity_tier FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s WHERE pred_severity_tier >= 2;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(*) AS high_critical_count FROM (SELECT DISTINCT ON (p.event_id) p.pred_severity_tier FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s WHERE pred_severity_tier >= 2;",
           "refId": "A"
         }
       ],
@@ -115,24 +147,25 @@
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "color": { "fixedColor": "blue", "mode": "fixed" },
           "unit": "short"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 3 },
       "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "justifyMode": "center",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value"
       },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.category_id) AS active_categories FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.category_id) AS active_categories FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
           "refId": "A"
         }
       ],
@@ -156,7 +189,7 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "severity_tier" },
+            "matcher": { "id": "byName", "options": "Severity" },
             "properties": [
               {
                 "id": "mappings",
@@ -176,41 +209,59 @@
           }
         ]
       },
-      "gridPos": { "h": 12, "w": 16, "x": 0, "y": 4 },
+      "gridPos": { "h": 12, "w": 16, "x": 0, "y": 7 },
       "id": 5,
       "options": {
-        "basemap": { "name": "Layer 0", "type": "default" },
-        "controls": { "mouseWheelZoom": true, "showAttribution": true, "showScale": true, "showZoom": true },
+        "basemap": { "config": {}, "name": "Layer 0", "type": "default" },
+        "controls": {
+          "mouseWheelZoom": true,
+          "showAttribution": false,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": true,
+          "showZoom": true
+        },
         "layers": [
           {
             "config": {
               "showLegend": true,
               "style": {
-                "color": { "field": "severity_tier", "fixed": "green" },
-                "opacity": 0.85,
-                "size": { "field": "severity_tier", "fixed": 7, "max": 18, "min": 6 },
-                "symbol": { "fixed": "img/icons/marker/circle.svg", "mode": "fixed" }
+                "color": { "field": "Severity", "fixed": "green" },
+                "opacity": 0.88,
+                "rotation": { "fixed": 0, "max": 360, "min": -360, "mode": "mod" },
+                "size": { "field": "Severity", "fixed": 6, "max": 13, "min": 5 },
+                "symbol": { "fixed": "img/icons/marker/circle.svg", "mode": "fixed" },
+                "symbolAlign": { "horizontal": "center", "vertical": "center" },
+                "textConfig": { "fontSize": 11, "offsetX": 0, "offsetY": 0, "textAlign": "center", "textBaseline": "middle" }
               }
             },
             "location": { "latitude": "latitude", "longitude": "longitude", "mode": "coords" },
-            "name": "Live Hazards",
+            "name": "Active Natural Hazards",
             "tooltip": true,
             "type": "markers"
           }
         ],
         "tooltip": { "mode": "details" },
-        "view": { "allLayers": true, "id": "zero", "lat": 15, "lon": 0, "zoom": 1.6 }
+        "view": {
+          "allLayers": true,
+          "id": "fit",
+          "lat": 15,
+          "lon": 0,
+          "maxZoom": 7,
+          "padding": 45,
+          "zoom": 1.6
+        }
       },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id, e.title, p.category_id, e.event_time_utc AS open_date, e.latitude, e.longitude, p.pred_severity_tier AS severity_tier, COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS magnitude, ROUND(p.pred_duration_hours::numeric, 1) AS pred_total_h, ROUND(p.pred_remaining_hours::numeric, 1) AS remaining_h, ROUND(e.temp_2m_c::numeric, 1) AS temp_c, ROUND(e.wind_10m_ms::numeric, 1) AS wind_ms FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (°C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
           "refId": "A"
         }
       ],
-      "title": "Global Active Hazards Map (Low=Green, Moderate=Orange, High/Critical=Red)",
+      "title": "Global Active Hazards Map (Auto-Zooms on Filter | Low=Green, Moderate=Orange, High/Critical=Red)",
       "type": "geomap"
     },
     {
@@ -218,19 +269,25 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 85 },
+          "custom": { "fillOpacity": 88, "gradientMode": "scheme" },
           "unit": "short"
         }
       },
-      "gridPos": { "h": 12, "w": 8, "x": 16, "y": 4 },
+      "gridPos": { "h": 12, "w": 8, "x": 16, "y": 7 },
       "id": 6,
-      "options": { "orientation": "horizontal", "showValue": "always" },
+      "options": {
+        "barRadius": 0.12,
+        "barWidth": 0.65,
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "orientation": "horizontal",
+        "showValue": "always"
+      },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT p.category_id, COUNT(DISTINCT p.event_id) AS open_hazards FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') GROUP BY 1 ORDER BY 2 DESC;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT p.category_id AS \"Category\", COUNT(DISTINCT p.event_id) AS \"Open Hazards\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') GROUP BY 1 ORDER BY 2 DESC;",
           "refId": "A"
         }
       ],
@@ -245,8 +302,25 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "severity_tier" },
+            "matcher": { "id": "byName", "options": "Event ID" },
+            "properties": [{ "id": "custom.width", "value": 125 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Hazard Title" },
+            "properties": [{ "id": "custom.width", "value": 270 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Category" },
+            "properties": [{ "id": "custom.width", "value": 125 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Opened (UTC)" },
+            "properties": [{ "id": "custom.width", "value": 165 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Severity" },
             "properties": [
+              { "id": "custom.width", "value": 120 },
               {
                 "id": "mappings",
                 "value": [
@@ -266,18 +340,18 @@
           }
         ]
       },
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 16 },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 19 },
       "id": 7,
       "options": {
         "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "severity_tier" }]
+        "sortBy": [{ "desc": true, "displayName": "Opened (UTC)" }]
       },
       "targets": [
         {
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id, e.title, p.category_id, e.event_time_utc AS open_date, p.pred_severity_tier AS severity_tier, COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS magnitude, ROUND(p.pred_duration_hours::numeric, 1) AS pred_total_h, ROUND(p.pred_remaining_hours::numeric, 1) AS remaining_h, ROUND(e.temp_2m_c::numeric, 1) AS temp_c, ROUND(e.humidity_2m_pct::numeric, 0) AS humidity_pct, ROUND(e.wind_10m_ms::numeric, 1) AS wind_ms FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (°C)\", ROUND(e.humidity_2m_pct::numeric, 0) AS \"Humidity (%)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
           "refId": "A"
         }
       ],
@@ -286,10 +360,11 @@
     }
   ],
   "schemaVersion": 39,
-  "tags": ["nasa-eonet", "domain", "geomap"],
+  "tags": ["nasa-eonet", "domain", "geomap", "presentation"],
   "templating": {
     "list": [
       {
+        "hide": 2,
         "label": "PostgreSQL / TimescaleDB",
         "name": "DS_POSTGRESQL",
         "query": "grafana-postgresql-datasource",
@@ -297,8 +372,22 @@
         "type": "datasource"
       },
       {
+        "allValue": "",
+        "current": { "selected": true, "text": ["All"], "value": ["$__all"] },
+        "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+        "definition": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Category",
+        "multi": true,
+        "name": "category",
+        "query": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;",
+        "refresh": 1,
+        "type": "query"
+      },
+      {
         "current": { "selected": false, "text": "", "value": "" },
-        "description": "Filter by Event ID (e.g. EONET_10213) or Title keyword (e.g. Hurricane, Wildfire)",
+        "description": "Type any Event ID (e.g. EONET_26463) or Title keyword (e.g. Wildfire, Cyclone) and press Enter",
         "hide": 0,
         "label": "Search Event (ID or Title)",
         "name": "event_search",
@@ -308,9 +397,9 @@
       }
     ]
   },
-  "time": { "from": "now-6h", "to": "now" },
+  "time": { "from": "now-24h", "to": "now" },
   "timezone": "utc",
   "title": "01 - NASA EONET Domain KPIs & Severity Geomap",
   "uid": "eonet-domain-map-v1",
-  "version": 3
+  "version": 4
 }
