@@ -2,17 +2,79 @@
   "annotations": {
     "list": [
       {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
         "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
         "enable": true,
+        "hide": false,
         "iconColor": "#F2495C",
-        "name": "Train/Test Split & Lifecycle Markers",
-        "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;"
+        "name": "Train / Test Split & Lifecycle Markers",
+        "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
       }
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "links": [],
   "panels": [
+    {
+      "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+      "gridPos": { "h": 6, "w": 17, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "### Model Quality & Champion/Challenger Evaluation\nReal-time shadow scoring, signed error drift tracking (`> 0` overpredicting, `< 0` underpredicting), and win-rate governance across **Closed** & **Open** events.\n\n| Event Lifecycle & Error Matrix | Rolling Drift & Split Markers | Live Cohort Win-Rate Governance |\n| :--- | :--- | :--- |\n| Compares **v1 (Baseline)**, **v2 (GBT)**, and **v3 (SparkXGBoost)** signed errors (`pred - actual`), selects the **Best Model**, and projects optimal close timestamps. | Tracks daily **MAE** curves across the vertical **Train / Test Split (`2026-11-27`)** annotation to detect post-cutoff drift. | Evaluates post-cutoff closed hazards & live open hazards—retaining **v1/v2** baselines while validating **v3 (SparkXGBoost)** in shadow mode. |",
+        "mode": "markdown"
+      },
+      "title": "Model Quality & Champion/Challenger Overview",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "SparkXGBRegressor v3 (Challenger)" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "GBTRegressor v2 (Shadow)" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Baseline v1 (Champion)" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Tie" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 6, "w": 7, "x": 17, "y": 0 },
+      "id": 2,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": { "displayMode": "list", "placement": "right", "showLegend": true, "values": [] },
+        "pieType": "pie",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH per_event AS (SELECT record_id, MAX(CASE WHEN model_version = 'v1_baseline' THEN abs_error_hours END) AS e1, MAX(CASE WHEN model_version = 'v2_gbt' THEN abs_error_hours END) AS e2, MAX(CASE WHEN model_version = 'v3_xgboost' THEN abs_error_hours END) AS e3 FROM eonet_prediction_history WHERE status = 'closed' AND abs_error_hours IS NOT NULL GROUP BY record_id), winners AS (SELECT CASE WHEN e3 < e2 AND e3 < e1 THEN 'SparkXGBRegressor v3 (Challenger)' WHEN e2 < e3 AND e2 < e1 THEN 'GBTRegressor v2 (Shadow)' WHEN e1 < e2 AND e1 < e3 THEN 'Baseline v1 (Champion)' ELSE 'Tie' END AS winner FROM per_event WHERE e1 IS NOT NULL AND e2 IS NOT NULL AND e3 IS NOT NULL) SELECT winner, COUNT(*) AS wins FROM winners GROUP BY 1 ORDER BY 2 DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Closed Events Prediction Winning Rate",
+      "type": "piechart"
+    },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
       "fieldConfig": {
@@ -20,11 +82,11 @@
           "color": { "mode": "palette-classic" },
           "custom": {
             "drawStyle": "line",
-            "fillOpacity": 12,
+            "fillOpacity": 10,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 4,
-            "showPoints": "auto",
+            "showPoints": "always",
             "spanNulls": true
           },
           "unit": "h"
@@ -33,17 +95,16 @@
           {
             "matcher": { "id": "byRegexp", "options": ".*\\(test\\).*" },
             "properties": [
-              { "id": "custom.lineStyle", "value": { "dash": [8, 6], "fill": "dash" } },
-              { "id": "custom.lineWidth", "value": 3 },
-              { "id": "custom.pointSize", "value": 6 }
+              { "id": "custom.lineStyle", "value": { "dash": [6, 4], "fill": "dash" } },
+              { "id": "custom.lineWidth", "value": 3 }
             ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
-      "id": 1,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 3,
       "options": {
-        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "asc" }
       },
       "targets": [
@@ -52,52 +113,119 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('30 days', scored_at_utc) AS time, model_version || ' (' || data_split || ')' AS metric, ROUND(AVG(abs_error_hours)::numeric, 2) AS mae_hours FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL AND $__timeFilter(scored_at_utc) GROUP BY 1, 2 ORDER BY 1, 2;",
+          "rawSql": "SELECT time_bucket('7 days', scored_at_utc) AS time, model_version || ' (' || data_split || ')' AS series, ROUND(AVG(abs_error_hours)::numeric, 2) AS mae_hours FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL AND $__timeFilter(scored_at_utc) GROUP BY 1, 2 ORDER BY 1, 2;",
           "refId": "A"
         }
       ],
-      "title": "Model Prediction Error (MAE Hours): Before Split (train, solid) vs. Testing Era (test, dashed)",
+      "title": "Rolling MAE Error Line Graph: Train (Solid) vs. Test Split (Dashed)",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "fillOpacity": 85 }, "unit": "h" } },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
-      "id": 2,
-      "options": { "orientation": "vertical", "showValue": "always" },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT model_version || ' [' || data_split || ']' AS model_split, ROUND(AVG(abs_error_hours)::numeric, 1) AS mae_hours, ROUND(SQRT(AVG(squared_error_hours))::numeric, 1) AS rmse_hours FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL GROUP BY 1 ORDER BY 1;", "refId": "A" }],
-      "title": "Train vs. Test Split Error Summary (MAE & RMSE Hours)",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 85 },
+          "unit": "h"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 4,
+      "options": {
+        "orientation": "vertical",
+        "showValue": "always",
+        "xTickLabelRotation": 0
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT category_id, ROUND(AVG(actual_duration_hours)::numeric, 1) AS \"Actual Duration (h)\", ROUND(AVG(CASE WHEN model_version = 'v1_baseline' THEN pred_duration_hours END)::numeric, 1) AS \"v1 Predicted (h) - Baseline\", ROUND(AVG(CASE WHEN model_version = 'v2_gbt' THEN pred_duration_hours END)::numeric, 1) AS \"v2 Predicted (h) - GBT\", ROUND(AVG(CASE WHEN model_version = 'v3_xgboost' THEN pred_duration_hours END)::numeric, 1) AS \"v3 Predicted (h) - XGBoost\" FROM eonet_prediction_history WHERE status = 'closed' AND data_split = 'test' GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 6;",
+          "refId": "A"
+        }
+      ],
+      "title": "Predicted vs. Actual Duration by Category (Test Split)",
       "type": "barchart"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" } },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
-      "id": 3,
-      "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true }, "pieType": "donut" },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT 'Tier ' || pred_severity_tier::text AS severity_tier, COUNT(*) AS count FROM eonet_predictions WHERE model_version = 'v3_xgboost' GROUP BY 1 ORDER BY 1;", "refId": "A" }],
-      "title": "Live Open Hazard Severity Distribution (RandomForestClassifier)",
-      "type": "piechart"
-    },
-    {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": {} },
-      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 18 },
-      "id": 4,
-      "options": { "showHeader": true },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT model_version, data_split, COUNT(*) AS evaluated_events, ROUND(AVG(pred_duration_hours)::numeric, 1) AS avg_pred_h, ROUND(AVG(actual_duration_hours)::numeric, 1) AS avg_actual_h, ROUND(AVG(abs_error_hours)::numeric, 1) AS mae_h, ROUND(SQRT(AVG(squared_error_hours))::numeric, 1) AS rmse_h FROM eonet_prediction_history GROUP BY 1, 2 ORDER BY 1, 2;", "refId": "A" }],
-      "title": "Complete Model Benchmark & Live Evaluation Scorecard (Train vs. Test Split)",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true, "inspect": false }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "closed": { "color": "blue", "text": "CLOSED" }, "open": { "color": "green", "text": "OPEN" } }, "type": "value" }
+                ]
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Severity Tier" },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "0": { "text": "0 - Low" }, "1": { "text": "1 - Moderate" }, "2": { "text": "2 - High" }, "3": { "text": "3 - Critical" } }, "type": "value" }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*Error \\(h\\)" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "red", "value": null },
+                    { "color": "green", "value": -24 },
+                    { "color": "red", "value": 24 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 11, "w": 24, "x": 0, "y": 14 },
+      "id": 5,
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Opened (UTC)" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH closed_eval AS (SELECT DISTINCT ON (h.event_id) h.event_id AS \"Event ID\", COALESCE(s.title, h.event_id) AS \"Hazard Title\", h.category_id AS \"Category\", 'closed' AS \"Status\", MAX(h.pred_severity_tier) AS \"Severity Tier\", COALESCE(s.event_time_utc, h.scored_at_utc - (MAX(h.actual_duration_hours) * INTERVAL '1 hour')) AS \"Opened (UTC)\", h.scored_at_utc AS \"Actual Close (UTC)\", ROUND(MAX(h.actual_duration_hours)::numeric, 1) AS \"Actual Dur (h)\", ROUND(MAX(CASE WHEN h.model_version='v1_baseline' THEN h.pred_duration_hours END)::numeric, 1) AS \"v1 Pred (h)\", ROUND((MAX(CASE WHEN h.model_version='v1_baseline' THEN h.pred_duration_hours END) - MAX(h.actual_duration_hours))::numeric, 2) AS \"v1 Error (h)\", ROUND(MAX(CASE WHEN h.model_version='v2_gbt' THEN h.pred_duration_hours END)::numeric, 1) AS \"v2 Pred (h)\", ROUND((MAX(CASE WHEN h.model_version='v2_gbt' THEN h.pred_duration_hours END) - MAX(h.actual_duration_hours))::numeric, 2) AS \"v2 Error (h)\", ROUND(MAX(CASE WHEN h.model_version='v3_xgboost' THEN h.pred_duration_hours END)::numeric, 1) AS \"v3 Pred (h)\", ROUND((MAX(CASE WHEN h.model_version='v3_xgboost' THEN h.pred_duration_hours END) - MAX(h.actual_duration_hours))::numeric, 2) AS \"v3 Error (h)\", CASE WHEN MAX(CASE WHEN h.model_version='v3_xgboost' THEN h.abs_error_hours END) <= LEAST(MAX(CASE WHEN h.model_version='v1_baseline' THEN h.abs_error_hours END), MAX(CASE WHEN h.model_version='v2_gbt' THEN h.abs_error_hours END)) THEN 'XGB v3 (Challenger)' WHEN MAX(CASE WHEN h.model_version='v2_gbt' THEN h.abs_error_hours END) < MAX(CASE WHEN h.model_version='v1_baseline' THEN h.abs_error_hours END) THEN 'GBT v2 (Shadow)' ELSE 'Baseline v1 (Champion)' END AS \"Best Model\", COALESCE(s.event_time_utc, h.scored_at_utc - (MAX(h.actual_duration_hours) * INTERVAL '1 hour')) + (LEAST(MAX(CASE WHEN h.model_version='v1_baseline' THEN h.pred_duration_hours END), MAX(CASE WHEN h.model_version='v2_gbt' THEN h.pred_duration_hours END), MAX(CASE WHEN h.model_version='v3_xgboost' THEN h.pred_duration_hours END)) * INTERVAL '1 hour') AS \"Best Predicted Close (UTC)\" FROM eonet_prediction_history h LEFT JOIN eonet_events_stream s ON h.event_id = s.event_id WHERE h.status = 'closed' AND h.data_split = 'test' GROUP BY h.event_id, s.title, h.category_id, s.event_time_utc, h.scored_at_utc ORDER BY h.event_id, h.scored_at_utc DESC LIMIT 100), open_eval AS (SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", COALESCE(s.title, p.event_id) AS \"Hazard Title\", p.category_id AS \"Category\", 'open' AS \"Status\", MAX(p.pred_severity_tier) AS \"Severity Tier\", COALESCE(s.event_time_utc, p.predicted_at_utc - (MAX(p.elapsed_hours) * INTERVAL '1 hour')) AS \"Opened (UTC)\", NULL::timestamptz AS \"Actual Close (UTC)\", ROUND(MAX(p.elapsed_hours)::numeric, 1) AS \"Actual Dur (h)\", ROUND(MAX(CASE WHEN p.model_version='v1_baseline' THEN p.pred_duration_hours END)::numeric, 1) AS \"v1 Pred (h)\", NULL::numeric AS \"v1 Error (h)\", ROUND(MAX(CASE WHEN p.model_version='v2_gbt' THEN p.pred_duration_hours END)::numeric, 1) AS \"v2 Pred (h)\", NULL::numeric AS \"v2 Error (h)\", ROUND(MAX(CASE WHEN p.model_version='v3_xgboost' THEN p.pred_duration_hours END)::numeric, 1) AS \"v3 Pred (h)\", NULL::numeric AS \"v3 Error (h)\", 'XGB v3 (Challenger)' AS \"Best Model\", COALESCE(s.event_time_utc, p.predicted_at_utc - (MAX(p.elapsed_hours) * INTERVAL '1 hour')) + (MAX(CASE WHEN p.model_version='v3_xgboost' THEN p.pred_duration_hours END) * INTERVAL '1 hour') AS \"Best Predicted Close (UTC)\" FROM eonet_predictions p LEFT JOIN eonet_events_stream s ON p.event_id = s.event_id WHERE p.status = 'open' GROUP BY p.event_id, s.title, p.category_id, s.event_time_utc, p.predicted_at_utc ORDER BY p.event_id, p.predicted_at_utc DESC LIMIT 100) SELECT * FROM closed_eval UNION ALL SELECT * FROM open_eval ORDER BY \"Opened (UTC)\" DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Event Lifecycle Forecast: Open Date, Predicted Close vs. Actual Close & Model Errors (Closed + Open)",
       "type": "table"
     }
   ],
   "schemaVersion": 39,
-  "tags": ["nasa-eonet", "mlops", "xgboost", "train-test-split"],
+  "tags": ["nasa-eonet", "mlops", "xgboost", "champion-challenger"],
   "templating": {
     "list": [{ "label": "PostgreSQL / TimescaleDB", "name": "DS_POSTGRESQL", "query": "grafana-postgresql-datasource", "refresh": 1, "type": "datasource" }]
   },
-  "time": { "from": "now-5y", "to": "now" },
+  "time": { "from": "now-1y", "to": "now" },
   "timezone": "utc",
-  "title": "03 - NASA EONET Model Quality & Train/Test Split Error",
+  "title": "03 - NASA EONET Model Quality & Champion/Challenger Evaluation",
   "uid": "eonet-ml-quality-v1",
-  "version": 2
+  "version": 3
 }
