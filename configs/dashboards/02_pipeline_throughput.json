@@ -2,85 +2,310 @@
   "annotations": {
     "list": [
       {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
         "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
         "enable": true,
+        "hide": false,
         "iconColor": "#F2495C",
-        "name": "Pipeline Lifecycle Events",
-        "rawQuery": "SELECT event_ts AS time, component || ': ' || event_type AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;"
+        "name": "Restarts, Deployments & Lifecycle Events",
+        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ' (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
       }
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "links": [],
   "panels": [
     {
+      "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "code": { "language": "html", "showLineNumbers": false, "showMiniMap": false },
+        "content": "<div style=\"background: transparent; border-bottom: 1px solid rgba(159, 179, 200, 0.22); padding: 8px 4px 12px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;\">\n  <div>\n    <div style=\"font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: 0.2px; line-height: 1.25;\">NASA EONET Lakehouse &mdash; Streaming &amp; Batch Pipeline Health</div>\n    <div style=\"font-size: 13.5px; color: #cbd5e1; margin-top: 5px; line-height: 1.4;\">End-to-End Telemetry: <span style=\"color:#73bf69; font-weight:600;\">Kafka KRaft (nasa-eonet-raw)</span> &rarr; <span style=\"color:#5794f2; font-weight:600;\">Spark Structured Streaming (60s Trigger)</span> &rarr; <span style=\"color:#ff9830; font-weight:600;\">TimescaleDB Hypertables</span> &nbsp;|&nbsp; Vertical dashed markers indicate service restarts &amp; deployments.</div>\n  </div>\n  <div style=\"display: flex; gap: 10px; align-items: center;\">\n    <span style=\"border: 1px solid #73bf69; color: #73bf69; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">&#9679; WATERMARK: 30 DAYS</span>\n    <span style=\"border: 1px solid #5794f2; color: #5794f2; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">IDEMPOTENT UPSERT</span>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }, "unit": "short" } },
-      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#5794F2", "mode": "fixed" },
+          "decimals": 2,
+          "unit": "ops"
+        }
+      },
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 3 },
       "id": 1,
-      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT COUNT(*) AS total_stream_records FROM eonet_events_stream;", "refId": "A" }],
-      "title": "Total Stream Records Scored",
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["mean"] } },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT ROUND(AVG(input_rows_per_sec)::numeric, 2) AS input_rps FROM eonet_streaming_metrics WHERE input_rows > 0;", "refId": "A" }],
+      "title": "Avg Input Rate (Active Batches)",
       "type": "stat"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" } },
-      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#73BF69", "mode": "fixed" },
+          "decimals": 1,
+          "unit": "ops"
+        }
+      },
+      "gridPos": { "h": 4, "w": 5, "x": 5, "y": 3 },
       "id": 2,
-      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT COUNT(*) AS total_model_predictions FROM eonet_predictions;", "refId": "A" }],
-      "title": "Total Multi-Model Predictions Written",
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["mean"] } },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT ROUND(AVG(processed_rows_per_sec)::numeric, 1) AS processed_rps FROM eonet_streaming_metrics WHERE processed_rows > 0;", "refId": "A" }],
+      "title": "Spark Processing Throughput",
       "type": "stat"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] }, "unit": "short" } },
-      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 20 },
+              { "color": "red", "value": 45 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 5, "x": 10, "y": 3 },
       "id": 3,
-      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT COUNT(*) AS lifecycle_events FROM eonet_lifecycle_events;", "refId": "A" }],
-      "title": "Recorded Lifecycle Events",
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT ROUND(AVG(batch_duration_sec)::numeric, 2) AS avg_batch_s FROM eonet_streaming_metrics WHERE processed_rows > 0;", "refId": "A" }],
+      "title": "Avg Micro-Batch Duration (SLA < 60s)",
       "type": "stat"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "bars", "fillOpacity": 75, "stacking": { "mode": "normal" } }, "unit": "short" } },
-      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#00B5D8", "mode": "fixed" },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 5, "x": 15, "y": 3 },
       "id": 4,
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "time_series", "rawQuery": true, "rawSql": "SELECT time_bucket('5 minutes', ingested_at_utc) AS time, status, COUNT(*) AS events FROM eonet_events_stream WHERE $__timeFilter(ingested_at_utc) GROUP BY 1, 2 ORDER BY 1;", "refId": "A" }],
-      "title": "Kafka -> Spark -> TimescaleDB Throughput (5-Min Buckets)",
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT COUNT(*) AS unique_events_scored FROM eonet_events_stream;", "refId": "A" }],
+      "title": "Unique Stream Events Persisted",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#FF780A", "mode": "fixed" },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 3 },
+      "id": 5,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT COUNT(*) AS lifecycle_markers FROM eonet_lifecycle_events;", "refId": "A" }],
+      "title": "Restarts & Deployments",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 18,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "always",
+            "spanNulls": true
+          },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Processed Rows / sec" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Input Rows / sec" }, "properties": [{ "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
+      "id": 6,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT recorded_at_utc AS time, ROUND(input_rows_per_sec::numeric, 3) AS \"Input Rows / sec\", ROUND(processed_rows_per_sec::numeric, 3) AS \"Processed Rows / sec\" FROM eonet_streaming_metrics WHERE $__timeFilter(recorded_at_utc) ORDER BY 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Input vs. Processed Rows per Second (with Restart & Deployment Annotations)",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "fillOpacity": 85 }, "unit": "short" } },
-      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 4 },
-      "id": 5,
-      "options": { "orientation": "horizontal", "showValue": "always" },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT source_id, COUNT(*) AS records FROM eonet_events_stream GROUP BY 1 ORDER BY 2 DESC LIMIT 12;", "refId": "A" }],
-      "title": "Ingested Records by Agency Source",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "always",
+            "thresholdsStyle": { "mode": "dashed" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 60 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Batch Duration (s)" }, "properties": [{ "id": "color", "value": { "fixedColor": "#FF780A", "mode": "fixed" } }] },
+          {
+            "matcher": { "id": "byName", "options": "Trigger Budget (60s)" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } },
+              { "id": "custom.lineStyle", "value": { "dash": [6, 4], "fill": "dash" } },
+              { "id": "custom.fillOpacity", "value": 0 },
+              { "id": "custom.showPoints", "value": "never" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "id": 7,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT recorded_at_utc AS time, ROUND(batch_duration_sec::numeric, 2) AS \"Batch Duration (s)\", trigger_interval_sec AS \"Trigger Budget (60s)\" FROM eonet_streaming_metrics WHERE $__timeFilter(recorded_at_utc) ORDER BY 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Spark Micro-Batch Execution Duration (s) vs. 60s Trigger SLA",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic-by-name" },
+          "custom": { "fillOpacity": 88 },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 9, "x": 0, "y": 15 },
+      "id": 8,
+      "options": {
+        "barRadius": 0.14,
+        "barWidth": 0.62,
+        "colorByField": "Agency Source",
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "orientation": "horizontal",
+        "showValue": "always"
+      },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT source_id AS \"Agency Source\", COUNT(*) AS \"Ingested Records\" FROM eonet_events_stream GROUP BY 1 ORDER BY 2 DESC LIMIT 10;", "refId": "A" }],
+      "title": "Ingested Stream Volume by NASA EONET Agency Source",
       "type": "barchart"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
-      "fieldConfig": { "defaults": {} },
-      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 13 },
-      "id": 6,
-      "options": { "showHeader": true },
-      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT event_ts, component, event_type, model_version, details::text AS details FROM eonet_lifecycle_events ORDER BY event_ts DESC LIMIT 25;", "refId": "A" }],
-      "title": "Pipeline & MLOps Lifecycle Audit Log",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Timestamp (UTC)" }, "properties": [{ "id": "custom.width", "value": 170 }] },
+          { "matcher": { "id": "byName", "options": "Component" }, "properties": [{ "id": "custom.width", "value": 145 }] },
+          {
+            "matcher": { "id": "byName", "options": "Event Type" },
+            "properties": [
+              { "id": "custom.width", "value": 165 },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "champion_deployed": { "color": "green", "text": "CHAMPION DEPLOYED" },
+                      "champion_promoted": { "color": "purple", "text": "CHAMPION PROMOTED" },
+                      "model_retrain_benchmark": { "color": "blue", "text": "MODEL RETRAIN" },
+                      "service_restart": { "color": "orange", "text": "SERVICE RESTART" },
+                      "service_start": { "color": "green", "text": "SERVICE START" },
+                      "service_stop": { "color": "red", "text": "SERVICE STOP" }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 15, "x": 9, "y": 15 },
+      "id": 9,
+      "options": {
+        "enablePagination": true,
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Timestamp (UTC)" }]
+      },
+      "targets": [{ "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" }, "format": "table", "rawQuery": true, "rawSql": "SELECT event_ts AS \"Timestamp (UTC)\", component AS \"Component\", event_type AS \"Event Type\", model_version AS \"Model\", details::text AS \"Metadata / Audit Details\" FROM eonet_lifecycle_events ORDER BY event_ts DESC LIMIT 50;", "refId": "A" }],
+      "title": "Restarts, Deployments & MLOps Lifecycle Audit Log (Annotation Source)",
       "type": "table"
     }
   ],
   "schemaVersion": 39,
-  "tags": ["nasa-eonet", "pipeline", "kafka", "spark"],
+  "tags": ["nasa-eonet", "pipeline", "kafka", "spark", "presentation"],
   "templating": {
-    "list": [{ "label": "PostgreSQL / TimescaleDB", "name": "DS_POSTGRESQL", "query": "grafana-postgresql-datasource", "refresh": 1, "type": "datasource" }]
+    "list": [
+      {
+        "hide": 2,
+        "label": "PostgreSQL / TimescaleDB",
+        "name": "DS_POSTGRESQL",
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "type": "datasource"
+      }
+    ]
   },
-  "time": { "from": "now-6h", "to": "now" },
+  "time": { "from": "now-12h", "to": "now" },
   "timezone": "utc",
   "title": "02 - NASA EONET Streaming & Batch Pipeline Health",
   "uid": "eonet-pipeline-v1",
-  "version": 1
+  "version": 4
 }
