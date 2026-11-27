@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -11,7 +14,10 @@
         "type": "dashboard"
       },
       {
-        "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${DS_POSTGRESQL}"
+        },
         "enable": true,
         "hide": false,
         "iconColor": "#F2495C",
@@ -27,59 +33,167 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "grafana", "uid": "-- Grafana --" },
-      "gridPos": { "h": 6, "w": 17, "x": 0, "y": 0 },
+      "datasource": {
+        "type": "grafana",
+        "uid": "-- Grafana --"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 17,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
-        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
-        "content": "### Model Quality & Champion/Challenger Evaluation\nReal-time shadow scoring, signed error drift tracking (`> 0` overpredicting, `< 0` underpredicting), and win-rate governance on **live stream events** from TimescaleDB.\n\n| Event Lifecycle & Error Matrix | Rolling Drift & Split Markers | Live Cohort Win-Rate Governance |\n| :--- | :--- | :--- |\n| Tracks **Stream Events** (`eonet_events_stream`): shows **Pending** close until NASA publishes closure, then computes signed errors (`pred - actual`) and **Best Model**. | Compares **Train** (before `2026-11-27` split) vs. **Test** (post-cutoff out-of-time evaluation) MAE curves across the vertical split marker. | Evaluates live stream events unseen during training—retaining **v1/v2** baselines while validating **v3 (SparkXGBoost)** in shadow mode. |",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### Model Quality & Champion/Challenger Evaluation\nReal-time shadow scoring, signed error drift tracking (`> 0` overpredicting, `< 0` underpredicting), and win-rate governance on **live stream events** from TimescaleDB.\n\n| Event Lifecycle & Error Matrix | Rolling Drift & Split Markers | Live Cohort Win-Rate Governance |\n| :--- | :--- | :--- |\n| Tracks **Stream Events** (`eonet_events_stream`): shows **Pending** close until NASA publishes closure, then computes signed errors (`pred - actual`) and **Best Model**. | Compares **Train** (before `2026-11-27` split) vs. **Test** (post-cutoff out-of-time evaluation) MAE curves across the vertical split marker. | Evaluates live stream events unseen during training\u2014retaining **v1/v2** baselines while validating **v3 (SparkXGBoost)** in shadow mode. |",
         "mode": "markdown"
       },
       "title": "Model Quality & Champion/Challenger Overview",
       "type": "text"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
           "unit": "short"
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "SparkXGBRegressor v3 (Challenger)" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "GBTRegressor v2 (Shadow)" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Baseline v1 (Champion)" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Tie" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SparkXGBRegressor v3 (Challenger)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GBTRegressor v2 (Shadow)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Baseline v1 (Champion)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Tie"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
         ]
       },
-      "gridPos": { "h": 6, "w": 7, "x": 17, "y": 0 },
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 17,
+        "y": 0
+      },
       "id": 2,
       "options": {
-        "displayLabels": ["percent"],
-        "legend": { "displayMode": "list", "placement": "right", "showLegend": true, "values": [] },
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
         "pieType": "pie",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
-        "tooltip": { "mode": "single", "sort": "none" }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "wins",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH per_event AS (SELECT record_id, MAX(CASE WHEN model_version = 'v1_baseline' THEN abs_error_hours END) AS e1, MAX(CASE WHEN model_version = 'v2_gbt' THEN abs_error_hours END) AS e2, MAX(CASE WHEN model_version = 'v3_xgboost' THEN abs_error_hours END) AS e3 FROM eonet_prediction_history WHERE status = 'closed' AND data_split = 'test' AND abs_error_hours IS NOT NULL GROUP BY record_id), winners AS (SELECT CASE WHEN e3 < e2 AND e3 < e1 THEN 'SparkXGBRegressor v3 (Challenger)' WHEN e2 < e3 AND e2 < e1 THEN 'GBTRegressor v2 (Shadow)' WHEN e1 < e2 AND e1 < e3 THEN 'Baseline v1 (Champion)' ELSE 'Tie' END AS winner FROM per_event WHERE e1 IS NOT NULL AND e2 IS NOT NULL AND e3 IS NOT NULL) SELECT winner, COUNT(*) AS wins FROM winners GROUP BY 1 ORDER BY 2 DESC;",
+          "rawSql": "WITH latest_stream AS (  SELECT DISTINCT ON (event_id) event_id, status, event_time_utc, closed_time_utc, ingested_at_utc   FROM eonet_events_stream ORDER BY event_id, ingested_at_utc DESC), latest_preds AS (  SELECT DISTINCT ON (event_id, model_version) event_id, model_version, elapsed_hours, pred_duration_hours   FROM eonet_predictions ORDER BY event_id, model_version, predicted_at_utc DESC), eval_cohort AS (  SELECT s.event_id, s.status,     CASE WHEN s.status = 'closed' THEN MAX(p.elapsed_hours)          ELSE GREATEST(MAX(p.elapsed_hours), PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY p.pred_duration_hours)) END AS target_h,     MAX(CASE WHEN p.model_version = 'v1_baseline' THEN p.pred_duration_hours END) AS p1,     MAX(CASE WHEN p.model_version = 'v2_gbt' THEN p.pred_duration_hours END) AS p2,     MAX(CASE WHEN p.model_version = 'v3_xgboost' THEN p.pred_duration_hours END) AS p3   FROM latest_stream s JOIN latest_preds p ON s.event_id = p.event_id   GROUP BY s.event_id, s.status), winners AS (  SELECT CASE     WHEN ABS(p3 - target_h) < ABS(p2 - target_h) AND ABS(p3 - target_h) < ABS(p1 - target_h) THEN 'SparkXGBRegressor v3 (Challenger)'     WHEN ABS(p2 - target_h) < ABS(p3 - target_h) AND ABS(p2 - target_h) < ABS(p1 - target_h) THEN 'GBTRegressor v2 (Shadow)'     WHEN ABS(p1 - target_h) < ABS(p2 - target_h) AND ABS(p1 - target_h) < ABS(p3 - target_h) THEN 'Baseline v1 (Champion)'     ELSE 'Tie' END AS winner   FROM eval_cohort WHERE p1 IS NOT NULL AND p2 IS NOT NULL AND p3 IS NOT NULL) SELECT winner, COUNT(*) AS wins FROM winners GROUP BY 1 ORDER BY 2 DESC;",
           "refId": "A"
         }
       ],
-      "title": "Out-of-Time Test Cohort Winning Rate",
+      "title": "Streams Events Prediction Winning Rate",
       "type": "piechart"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -93,23 +207,57 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byRegexp", "options": ".*\\(test\\).*" },
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*\\(test\\).*"
+            },
             "properties": [
-              { "id": "custom.lineStyle", "value": { "dash": [6, 4], "fill": "dash" } },
-              { "id": "custom.lineWidth", "value": 3 }
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    6,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
             ]
           }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
       "id": 3,
       "options": {
-        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "asc" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "asc"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
@@ -121,15 +269,27 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 85 },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 85
+          },
           "unit": "h"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
       "id": 4,
       "options": {
         "orientation": "vertical",
@@ -138,7 +298,10 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -150,63 +313,142 @@
       "type": "barchart"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true, "inspect": false }
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          }
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Status" },
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
             "properties": [
               {
                 "id": "mappings",
                 "value": [
-                  { "options": { "closed": { "color": "blue", "text": "CLOSED" }, "open": { "color": "green", "text": "OPEN" } }, "type": "value" }
+                  {
+                    "options": {
+                      "closed": {
+                        "color": "blue",
+                        "text": "CLOSED"
+                      },
+                      "open": {
+                        "color": "green",
+                        "text": "OPEN"
+                      }
+                    },
+                    "type": "value"
+                  }
                 ]
               },
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Severity Tier" },
+            "matcher": {
+              "id": "byName",
+              "options": "Severity Tier"
+            },
             "properties": [
               {
                 "id": "mappings",
                 "value": [
-                  { "options": { "0": { "text": "0 - Low" }, "1": { "text": "1 - Moderate" }, "2": { "text": "2 - High" }, "3": { "text": "3 - Critical" } }, "type": "value" }
+                  {
+                    "options": {
+                      "0": {
+                        "text": "0 - Low"
+                      },
+                      "1": {
+                        "text": "1 - Moderate"
+                      },
+                      "2": {
+                        "text": "2 - High"
+                      },
+                      "3": {
+                        "text": "3 - Critical"
+                      }
+                    },
+                    "type": "value"
+                  }
                 ]
               }
             ]
           },
           {
-            "matcher": { "id": "byRegexp", "options": ".*Error \\(h\\)" },
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Error \\(h\\)"
+            },
             "properties": [
               {
                 "id": "thresholds",
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    { "color": "red", "value": null },
-                    { "color": "green", "value": -24 },
-                    { "color": "red", "value": 24 }
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": -24
+                    },
+                    {
+                      "color": "red",
+                      "value": 24
+                    }
                   ]
                 }
               },
-              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
             ]
           }
         ]
       },
-      "gridPos": { "h": 11, "w": 24, "x": 0, "y": 14 },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
       "id": 5,
       "options": {
         "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Opened (UTC)" }]
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Opened (UTC)"
+          }
+        ]
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -219,11 +461,27 @@
     }
   ],
   "schemaVersion": 39,
-  "tags": ["nasa-eonet", "mlops", "xgboost", "champion-challenger"],
+  "tags": [
+    "nasa-eonet",
+    "mlops",
+    "xgboost",
+    "champion-challenger"
+  ],
   "templating": {
-    "list": [{ "label": "PostgreSQL / TimescaleDB", "name": "DS_POSTGRESQL", "query": "grafana-postgresql-datasource", "refresh": 1, "type": "datasource" }]
+    "list": [
+      {
+        "label": "PostgreSQL / TimescaleDB",
+        "name": "DS_POSTGRESQL",
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "type": "datasource"
+      }
+    ]
   },
-  "time": { "from": "now-180d", "to": "now" },
+  "time": {
+    "from": "now-180d",
+    "to": "now"
+  },
   "timezone": "utc",
   "title": "03 - NASA EONET Model Quality & Champion/Challenger Evaluation",
   "uid": "eonet-ml-quality-v1",
