@@ -106,9 +106,10 @@ def process_micro_batch(batch_df, batch_id):
         ).otherwise(lit(None))
     )
 
-    scored_v2 = model_v2_dur.transform(featured).withColumnRenamed("prediction", "pred_v2")
-    scored_v2_sev = model_v2_sev.transform(scored_v2).withColumnRenamed("prediction", "pred_sev")
-    scored_v3 = model_v3_dur.transform(scored_v2_sev).withColumnRenamed("prediction", "pred_v3")
+    ml_temp_cols = ["cat_idx", "src_idx", "cat_vec", "src_vec", "features"]
+    scored_v2 = model_v2_dur.transform(featured).withColumnRenamed("prediction", "pred_v2").drop(*ml_temp_cols)
+    scored_v2_sev = model_v2_sev.transform(scored_v2).withColumnRenamed("prediction", "pred_sev").drop(*ml_temp_cols, "rawPrediction", "probability")
+    scored_v3 = model_v3_dur.transform(scored_v2_sev).withColumnRenamed("prediction", "pred_v3").drop(*ml_temp_cols)
     scored_all = scored_v3.join(v1_medians_df.withColumnRenamed("prediction", "pred_v1"), on="category_id", how="left").fillna({"pred_v1": 72.0})
 
     rows = scored_all.select(
