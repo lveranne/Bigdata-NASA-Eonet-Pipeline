@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -11,7 +14,10 @@
         "type": "dashboard"
       },
       {
-        "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${DS_POSTGRESQL}"
+        },
         "enable": true,
         "hide": false,
         "iconColor": "#F2495C",
@@ -27,12 +33,24 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "grafana", "uid": "-- Grafana --" },
-      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "datasource": {
+        "type": "grafana",
+        "uid": "-- Grafana --"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 10,
       "options": {
-        "code": { "language": "html", "showLineNumbers": false, "showMiniMap": false },
-        "content": "<div style=\"background: linear-gradient(90deg, #11141d 0%, #182236 60%, #1b2c48 100%); border: 1px solid #2b3a55; border-left: 5px solid #3274d9; border-radius: 8px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-family: Inter, sans-serif;\">\n  <div>\n    <div style=\"font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 0.3px;\">NASA EONET v3 + NASA POWER — Global Hazard Operations &amp; Remaining Horizon Forecast</div>\n    <div style=\"font-size: 12px; color: #9fb3c8; margin-top: 4px;\">Real-Time Lakehouse Pipeline: <span style=\"color:#73bf69; font-weight:600;\">Kafka KRaft</span> &rarr; <span style=\"color:#5794f2; font-weight:600;\">Spark Structured Streaming</span> &rarr; <span style=\"color:#ff9830; font-weight:600;\">TimescaleDB</span> &nbsp;|&nbsp; Use <b>Category</b> or <b>Search Event</b> above to auto-zoom onto any hazard.</div>\n  </div>\n  <div style=\"display: flex; gap: 8px;\">\n    <span style=\"background: rgba(115,191,105,0.18); border: 1px solid #73bf69; color: #73bf69; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;\">&#9679; LIVE STREAMING</span>\n    <span style=\"background: rgba(87,148,242,0.18); border: 1px solid #5794f2; color: #5794f2; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;\">CHAMPION / SHADOW ML</span>\n  </div>\n</div>",
+        "code": {
+          "language": "html",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"background: transparent; border-bottom: 1px solid rgba(159, 179, 200, 0.22); padding: 8px 4px 12px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;\">\n  <div>\n    <div style=\"font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: 0.2px; line-height: 1.25;\">NASA EONET v3 + NASA POWER &mdash; Global Hazard Operations &amp; Horizon Forecast</div>\n    <div style=\"font-size: 13.5px; color: #cbd5e1; margin-top: 5px; line-height: 1.4;\">Real-Time Lakehouse: <span style=\"color:#73bf69; font-weight:600;\">Kafka KRaft</span> &rarr; <span style=\"color:#5794f2; font-weight:600;\">Spark Structured Streaming</span> &rarr; <span style=\"color:#ff9830; font-weight:600;\">TimescaleDB</span> &nbsp;|&nbsp; Filter by <b>Category</b> or <b>Search Event</b> above to auto-zoom onto any hazard.</div>\n  </div>\n  <div style=\"display: flex; gap: 10px; align-items: center;\">\n    <span style=\"border: 1px solid #73bf69; color: #73bf69; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">&#9679; LIVE STREAMING</span>\n    <span style=\"border: 1px solid #5794f2; color: #5794f2; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">CHAMPION / SHADOW ML</span>\n  </div>\n</div>",
         "mode": "html"
       },
       "title": "",
@@ -40,25 +58,43 @@
       "type": "text"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "green", "mode": "fixed" },
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
           "unit": "short"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 3 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 3
+      },
       "id": 1,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "textMode": "value"
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.event_id) AS active_open_hazards FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
@@ -69,34 +105,60 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 72 },
-              { "color": "red", "value": 240 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 72
+              },
+              {
+                "color": "red",
+                "value": 240
+              }
             ]
           },
           "unit": "h"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 3 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 3
+      },
       "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "textMode": "value"
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT ROUND(AVG(pred_remaining_hours)::numeric, 1) AS avg_remaining_h FROM (SELECT DISTINCT ON (p.event_id) p.pred_remaining_hours FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s;",
@@ -107,33 +169,59 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 5 },
-              { "color": "red", "value": 20 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
             ]
           },
           "unit": "short"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 3 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 3
+      },
       "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "textMode": "value"
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(*) AS high_critical_count FROM (SELECT DISTINCT ON (p.event_id) p.pred_severity_tier FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s WHERE pred_severity_tier >= 2;",
@@ -144,25 +232,43 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
           "unit": "short"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 3 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 3
+      },
       "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "textMode": "value"
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.category_id) AS active_categories FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
@@ -173,33 +279,69 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 1 },
-              { "color": "red", "value": 2 },
-              { "color": "dark-red", "value": 3 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              },
+              {
+                "color": "dark-red",
+                "value": 3
+              }
             ]
           }
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Severity" },
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
             "properties": [
               {
                 "id": "mappings",
                 "value": [
                   {
                     "options": {
-                      "0": { "color": "green", "index": 0, "text": "0 - Low" },
-                      "1": { "color": "orange", "index": 1, "text": "1 - Moderate" },
-                      "2": { "color": "red", "index": 2, "text": "2 - High" },
-                      "3": { "color": "dark-red", "index": 3, "text": "3 - Critical" }
+                      "0": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "0 - Low"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "1 - Moderate"
+                      },
+                      "2": {
+                        "color": "red",
+                        "index": 2,
+                        "text": "2 - High"
+                      },
+                      "3": {
+                        "color": "dark-red",
+                        "index": 3,
+                        "text": "3 - Critical"
+                      }
                     },
                     "type": "value"
                   }
@@ -209,10 +351,19 @@
           }
         ]
       },
-      "gridPos": { "h": 12, "w": 16, "x": 0, "y": 7 },
+      "gridPos": {
+        "h": 12,
+        "w": 16,
+        "x": 0,
+        "y": 7
+      },
       "id": 5,
       "options": {
-        "basemap": { "config": {}, "name": "Layer 0", "type": "default" },
+        "basemap": {
+          "config": {},
+          "name": "Layer 0",
+          "type": "default"
+        },
         "controls": {
           "mouseWheelZoom": true,
           "showAttribution": false,
@@ -226,13 +377,36 @@
             "config": {
               "showLegend": true,
               "style": {
-                "color": { "field": "Severity", "fixed": "green" },
+                "color": {
+                  "field": "Severity",
+                  "fixed": "green"
+                },
                 "opacity": 0.9,
-                "rotation": { "fixed": 0, "max": 360, "min": -360, "mode": "mod" },
-                "size": { "field": "Severity", "fixed": 7, "max": 14, "min": 6 },
-                "symbol": { "fixed": "img/icons/marker/circle.svg", "mode": "fixed" },
-                "symbolAlign": { "horizontal": "center", "vertical": "center" },
-                "text": { "field": "Map Label", "fixed": "", "mode": "field" },
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "field": "Severity",
+                  "fixed": 7,
+                  "max": 14,
+                  "min": 6
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "symbolAlign": {
+                  "horizontal": "center",
+                  "vertical": "center"
+                },
+                "text": {
+                  "field": "Map Label",
+                  "fixed": "",
+                  "mode": "field"
+                },
                 "textConfig": {
                   "fontSize": 11,
                   "offsetX": 0,
@@ -242,13 +416,19 @@
                 }
               }
             },
-            "location": { "latitude": "latitude", "longitude": "longitude", "mode": "coords" },
+            "location": {
+              "latitude": "latitude",
+              "longitude": "longitude",
+              "mode": "coords"
+            },
             "name": "Active Natural Hazards",
             "tooltip": true,
             "type": "markers"
           }
         ],
-        "tooltip": { "mode": "details" },
+        "tooltip": {
+          "mode": "details"
+        },
         "view": {
           "allLayers": true,
           "id": "fit",
@@ -261,10 +441,13 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' • ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (°C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
           "refId": "A"
         }
       ],
@@ -272,34 +455,124 @@
       "type": "geomap"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
-          "custom": { "fillOpacity": 90, "gradientMode": "none" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "fillOpacity": 90,
+            "gradientMode": "none"
+          },
           "unit": "short"
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "severeStorms" }, "properties": [{ "id": "color", "value": { "fixedColor": "#3274D9", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "wildfires" }, "properties": [{ "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "seaLakeIce" }, "properties": [{ "id": "color", "value": { "fixedColor": "#00B5D8", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "volcanoes" }, "properties": [{ "id": "color", "value": { "fixedColor": "#FF780A", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "floods" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "severeStorms"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3274D9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wildfires"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF780A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "seaLakeIce"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00B5D8",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "volcanoes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "floods"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
         ]
       },
-      "gridPos": { "h": 12, "w": 8, "x": 16, "y": 7 },
+      "gridPos": {
+        "h": 12,
+        "w": 8,
+        "x": 16,
+        "y": 7
+      },
       "id": 6,
       "options": {
         "barRadius": 0.14,
         "barWidth": 0.62,
         "colorByField": "Category",
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
         "orientation": "horizontal",
         "showValue": "always"
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
           "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT p.category_id AS \"Category\", COUNT(DISTINCT p.event_id) AS \"Open Hazards\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') GROUP BY 1 ORDER BY 2 DESC;",
@@ -310,51 +583,141 @@
       "type": "barchart"
     },
     {
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
       "fieldConfig": {
         "defaults": {
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true }
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Event ID" }, "properties": [{ "id": "custom.width", "value": 125 }] },
-          { "matcher": { "id": "byName", "options": "Hazard Title" }, "properties": [{ "id": "custom.width", "value": 270 }] },
-          { "matcher": { "id": "byName", "options": "Category" }, "properties": [{ "id": "custom.width", "value": 125 }] },
-          { "matcher": { "id": "byName", "options": "Opened (UTC)" }, "properties": [{ "id": "custom.width", "value": 165 }] },
           {
-            "matcher": { "id": "byName", "options": "Severity" },
+            "matcher": {
+              "id": "byName",
+              "options": "Event ID"
+            },
             "properties": [
-              { "id": "custom.width", "value": 120 },
+              {
+                "id": "custom.width",
+                "value": 125
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hazard Title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 270
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 125
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Opened (UTC)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 165
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              },
               {
                 "id": "mappings",
                 "value": [
                   {
                     "options": {
-                      "0": { "color": "green", "text": "0 - Low" },
-                      "1": { "color": "orange", "text": "1 - Moderate" },
-                      "2": { "color": "red", "text": "2 - High" },
-                      "3": { "color": "dark-red", "text": "3 - Critical" }
+                      "0": {
+                        "color": "green",
+                        "text": "0 - Low"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "text": "1 - Moderate"
+                      },
+                      "2": {
+                        "color": "red",
+                        "text": "2 - High"
+                      },
+                      "3": {
+                        "color": "dark-red",
+                        "text": "3 - Critical"
+                      }
                     },
                     "type": "value"
                   }
                 ]
               },
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
             ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 19 },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
       "id": 7,
       "options": {
         "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Opened (UTC)" }]
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Opened (UTC)"
+          }
+        ],
+        "enablePagination": true
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (°C)\", ROUND(e.humidity_2m_pct::numeric, 0) AS \"Humidity (%)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.humidity_2m_pct::numeric, 0) AS \"Humidity (%)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
           "refId": "A"
         }
       ],
@@ -363,7 +726,12 @@
     }
   ],
   "schemaVersion": 39,
-  "tags": ["nasa-eonet", "domain", "geomap", "presentation"],
+  "tags": [
+    "nasa-eonet",
+    "domain",
+    "geomap",
+    "presentation"
+  ],
   "templating": {
     "list": [
       {
@@ -376,8 +744,19 @@
       },
       {
         "allValue": "",
-        "current": { "selected": true, "text": ["All"], "value": ["$__all"] },
-        "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${DS_POSTGRESQL}"
+        },
         "definition": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;",
         "hide": 0,
         "includeAll": true,
@@ -389,20 +768,33 @@
         "type": "query"
       },
       {
-        "current": { "selected": false, "text": "", "value": "" },
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
         "description": "Type any Event ID (e.g. EONET_26463) or Title keyword (e.g. Little Ridge) and press Enter",
         "hide": 0,
         "label": "Search Event (ID or Title)",
         "name": "event_search",
-        "options": [{ "selected": true, "text": "", "value": "" }],
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
         "query": "",
         "type": "textbox"
       }
     ]
   },
-  "time": { "from": "now-24h", "to": "now" },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "timezone": "utc",
   "title": "01 - NASA EONET Domain KPIs & Severity Geomap",
   "uid": "eonet-domain-map-v1",
-  "version": 6
+  "version": 7
 }
