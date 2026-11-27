@@ -31,9 +31,9 @@
       "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
       "id": 10,
       "options": {
-        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
-        "content": "### NASA EONET v3 + NASA POWER — Real-Time Global Hazard Operations & Remaining Horizon Forecast\nLive telemetry ingested via **Apache Kafka (KRaft)** $\\rightarrow$ enriched & scored in **Apache Spark Structured Streaming** $\\rightarrow$ persisted in **TimescaleDB**. Use **Category** or **Search Event (ID or Title)** above to isolate any hazard and auto-zoom the map.",
-        "mode": "markdown"
+        "code": { "language": "html", "showLineNumbers": false, "showMiniMap": false },
+        "content": "<div style=\"background: linear-gradient(90deg, #11141d 0%, #182236 60%, #1b2c48 100%); border: 1px solid #2b3a55; border-left: 5px solid #3274d9; border-radius: 8px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-family: Inter, sans-serif;\">\n  <div>\n    <div style=\"font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 0.3px;\">NASA EONET v3 + NASA POWER — Global Hazard Operations &amp; Remaining Horizon Forecast</div>\n    <div style=\"font-size: 12px; color: #9fb3c8; margin-top: 4px;\">Real-Time Lakehouse Pipeline: <span style=\"color:#73bf69; font-weight:600;\">Kafka KRaft</span> &rarr; <span style=\"color:#5794f2; font-weight:600;\">Spark Structured Streaming</span> &rarr; <span style=\"color:#ff9830; font-weight:600;\">TimescaleDB</span> &nbsp;|&nbsp; Use <b>Category</b> or <b>Search Event</b> above to auto-zoom onto any hazard.</div>\n  </div>\n  <div style=\"display: flex; gap: 8px;\">\n    <span style=\"background: rgba(115,191,105,0.18); border: 1px solid #73bf69; color: #73bf69; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;\">&#9679; LIVE STREAMING</span>\n    <span style=\"background: rgba(87,148,242,0.18); border: 1px solid #5794f2; color: #5794f2; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;\">CHAMPION / SHADOW ML</span>\n  </div>\n</div>",
+        "mode": "html"
       },
       "title": "",
       "transparent": true,
@@ -227,12 +227,19 @@
               "showLegend": true,
               "style": {
                 "color": { "field": "Severity", "fixed": "green" },
-                "opacity": 0.88,
+                "opacity": 0.9,
                 "rotation": { "fixed": 0, "max": 360, "min": -360, "mode": "mod" },
-                "size": { "field": "Severity", "fixed": 6, "max": 13, "min": 5 },
+                "size": { "field": "Severity", "fixed": 7, "max": 14, "min": 6 },
                 "symbol": { "fixed": "img/icons/marker/circle.svg", "mode": "fixed" },
                 "symbolAlign": { "horizontal": "center", "vertical": "center" },
-                "textConfig": { "fontSize": 11, "offsetX": 0, "offsetY": 0, "textAlign": "center", "textBaseline": "middle" }
+                "text": { "field": "Map Label", "fixed": "", "mode": "field" },
+                "textConfig": {
+                  "fontSize": 11,
+                  "offsetX": 0,
+                  "offsetY": -14,
+                  "textAlign": "center",
+                  "textBaseline": "bottom"
+                }
               }
             },
             "location": { "latitude": "latitude", "longitude": "longitude", "mode": "coords" },
@@ -247,8 +254,8 @@
           "id": "fit",
           "lat": 15,
           "lon": 0,
-          "maxZoom": 7,
-          "padding": 45,
+          "maxZoom": 9,
+          "padding": 50,
           "zoom": 1.6
         }
       },
@@ -257,28 +264,36 @@
           "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (°C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' • ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (°C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
           "refId": "A"
         }
       ],
-      "title": "Global Active Hazards Map (Auto-Zooms on Filter | Low=Green, Moderate=Orange, High/Critical=Red)",
+      "title": "Global Active Hazards Map (Auto-Zooms & Labels Filtered Hazards)",
       "type": "geomap"
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_POSTGRESQL}" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 88, "gradientMode": "scheme" },
+          "color": { "mode": "palette-classic-by-name" },
+          "custom": { "fillOpacity": 90, "gradientMode": "none" },
           "unit": "short"
-        }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "severeStorms" }, "properties": [{ "id": "color", "value": { "fixedColor": "#3274D9", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "wildfires" }, "properties": [{ "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "seaLakeIce" }, "properties": [{ "id": "color", "value": { "fixedColor": "#00B5D8", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "volcanoes" }, "properties": [{ "id": "color", "value": { "fixedColor": "#FF780A", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "floods" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] }
+        ]
       },
       "gridPos": { "h": 12, "w": 8, "x": 16, "y": 7 },
       "id": 6,
       "options": {
-        "barRadius": 0.12,
-        "barWidth": 0.65,
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "barRadius": 0.14,
+        "barWidth": 0.62,
+        "colorByField": "Category",
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
         "orientation": "horizontal",
         "showValue": "always"
       },
@@ -301,22 +316,10 @@
           "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true }
         },
         "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Event ID" },
-            "properties": [{ "id": "custom.width", "value": 125 }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Hazard Title" },
-            "properties": [{ "id": "custom.width", "value": 270 }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Category" },
-            "properties": [{ "id": "custom.width", "value": 125 }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Opened (UTC)" },
-            "properties": [{ "id": "custom.width", "value": 165 }]
-          },
+          { "matcher": { "id": "byName", "options": "Event ID" }, "properties": [{ "id": "custom.width", "value": 125 }] },
+          { "matcher": { "id": "byName", "options": "Hazard Title" }, "properties": [{ "id": "custom.width", "value": 270 }] },
+          { "matcher": { "id": "byName", "options": "Category" }, "properties": [{ "id": "custom.width", "value": 125 }] },
+          { "matcher": { "id": "byName", "options": "Opened (UTC)" }, "properties": [{ "id": "custom.width", "value": 165 }] },
           {
             "matcher": { "id": "byName", "options": "Severity" },
             "properties": [
@@ -387,7 +390,7 @@
       },
       {
         "current": { "selected": false, "text": "", "value": "" },
-        "description": "Type any Event ID (e.g. EONET_26463) or Title keyword (e.g. Wildfire, Cyclone) and press Enter",
+        "description": "Type any Event ID (e.g. EONET_26463) or Title keyword (e.g. Little Ridge) and press Enter",
         "hide": 0,
         "label": "Search Event (ID or Title)",
         "name": "event_search",
@@ -401,5 +404,5 @@
   "timezone": "utc",
   "title": "01 - NASA EONET Domain KPIs & Severity Geomap",
   "uid": "eonet-domain-map-v1",
-  "version": 4
+  "version": 6
 }
