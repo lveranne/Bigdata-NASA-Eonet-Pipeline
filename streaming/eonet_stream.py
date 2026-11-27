@@ -1,3 +1,4 @@
+import time
 import os
 import sys
 import json
@@ -84,7 +85,32 @@ def get_db_conn():
     )
 
 
+def get_model_roles(conn):
+    with conn.cursor() as cur:
+        cur.execute("SELECT model_version, deployment_role FROM eonet_model_registry;")
+        roles = dict(cur.fetchall())
+    return roles or {"v3_xgboost": "champion", "v2_gbt": "shadow", "v1_baseline": "shadow"}
+
+
+
+def log_stream_startup():
+    try:
+        c = get_db_conn()
+        with c, c.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO eonet_lifecycle_events (event_ts, component, event_type, model_version, details)
+                VALUES (NOW(), 'spark_streaming', 'service_restart', 'all', '{"trigger": "60s", "watermark": "30 days"}'::jsonb);
+                """
+            )
+        c.close()
+    except Exception as e:
+        print(f"[WARN] Could not log stream startup annotation: {e}")
+
+
 def process_micro_batch(batch_df, batch_id):
+    _batch_t0 = time.time()
+    _raw_in_count = batch_df.count()
     if batch_df.rdd.isEmpty():
         return
 
@@ -122,6 +148,7 @@ def process_micro_batch(batch_df, batch_id):
     ).collect()
 
     conn = get_db_conn()
+    model_roles = get_model_roles(conn)
     with conn, conn.cursor() as cur:
         for r in rows:
             cur.execute(
@@ -184,6 +211,27 @@ def process_micro_batch(batch_df, batch_id):
                         int(r.pred_sev), r.data_split
                     ),
                 )
+
+    _batch_dur = max(0.1, round(time.time() - _batch_t0, 3))
+    _proc_count = len(stream_rows) if 'stream_rows' in locals() else _raw_in_count
+    with conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO eonet_streaming_metrics (
+                recorded_at_utc, batch_id, input_rows, processed_rows,
+                batch_duration_sec, trigger_interval_sec, input_rows_per_sec, processed_rows_per_sec
+            ) VALUES (NOW(), %s, %s, %s, %s, 60.0, %s, %s)
+            ON CONFLICT DO NOTHING;
+            """,
+            (
+                int(batch_id),
+                int(_raw_in_count),
+                int(_proc_count),
+                float(_batch_dur),
+                round(_raw_in_count / 60.0, 4),
+                round(_proc_count / _batch_dur, 4),
+            ),
+        )
     conn.close()
 
 
