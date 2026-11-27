@@ -10,7 +10,7 @@ load_dotenv(os.path.expanduser("~/Bigdata-NASA-Eonet-Pipeline/.env"))
 spark = SparkSession.builder.appName("eonet_backfill_error_history").getOrCreate()
 spark.sparkContext.setLogLevel("WARN")
 
-gold_df = spark.read.parquet("hdfs://master:9000/lakehouse/gold/eonet_features").filter(
+gold_df = spark.read.parquet("").filter(
     (col("status") == "closed") & col("actual_duration_hours").isNotNull() & col("closed_ts").isNotNull()
 )
 
