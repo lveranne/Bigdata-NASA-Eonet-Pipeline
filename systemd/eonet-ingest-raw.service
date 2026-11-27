@@ -1,0 +1,13 @@
+[Unit]
+Description=Spark Structured Streaming Kafka to HDFS Raw
+After=network.target kafka.service
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/home/ubuntu/Bigdata-NASA-Eonet-Pipeline/streaming/run_ingest_raw.sh
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
