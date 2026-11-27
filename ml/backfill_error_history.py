@@ -11,7 +11,7 @@ spark = SparkSession.builder.appName("eonet_backfill_error_history").getOrCreate
 spark.sparkContext.setLogLevel("WARN")
 
 gold_df = spark.read.parquet("hdfs://master:9000/datalake/curated/eonet_features").filter(
-    (col("status") == "closed") & col("actual_duration_hours").isNotNull() & col("closed_ts").isNotNull()
+    (col("status") == "closed") & col("elapsed_hours").isNotNull() & col("closed_ts").isNotNull()
 )
 
 model_v2_dur = PipelineModel.load("hdfs://master:9000/models/eonet/v2_duration")
@@ -44,7 +44,7 @@ scored = scored.withColumn(
 
 rows = scored.select(
     "record_id", "event_id", "category_id", "status", "eval_split",
-    "eval_ts", "actual_duration_hours", "pred_v1", "pred_v2", "pred_v3", "pred_sev"
+    "eval_ts", "elapsed_hours", "pred_v1", "pred_v2", "pred_v3", "pred_sev"
 ).collect()
 
 # Compute exact split cutoff timestamp for Grafana annotation
@@ -71,7 +71,7 @@ with conn, conn.cursor() as cur:
         )
     batch_records = []
     for r in rows:
-        act = float(r.actual_duration_hours)
+        act = float(r.elapsed_hours)
         for ver, raw_pred in [("v1_baseline", r.pred_v1), ("v2_gbt", r.pred_v2), ("v3_xgboost", r.pred_v3)]:
             pred = float(max(1.0, raw_pred))
             err = abs(pred - act)
