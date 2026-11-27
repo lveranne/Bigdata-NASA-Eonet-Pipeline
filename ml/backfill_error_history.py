@@ -64,10 +64,10 @@ with conn, conn.cursor() as cur:
         cur.execute(
             """
             INSERT INTO eonet_lifecycle_events (event_ts, component, event_type, model_version, details)
-            VALUES (%s, 'ml_evaluation', 'temporal_train_test_split', 'all', '{"split_ratio": "80% train / 20% temporal test"}'::jsonb)
+            VALUES (%s, 'ml_evaluation', 'temporal_train_test_split', 'all', %s::jsonb)
             ON CONFLICT DO NOTHING;
             """,
-            (cutoff_row,),
+            (cutoff_row, '{"split_ratio": "80% train / 20% temporal test"}'),
         )
     batch_records = []
     for r in rows:
