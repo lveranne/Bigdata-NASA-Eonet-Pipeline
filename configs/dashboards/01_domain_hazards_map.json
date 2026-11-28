@@ -1,836 +1,1576 @@
 {
-  "annotations": {
-    "list": [
+  "kind": "Dashboard",
+  "apiVersion": "dashboard.grafana.app/v2",
+  "metadata": {
+    "name": "eonet-domain-map-v1",
+    "namespace": "default",
+    "uid": "bc9abd2d-124a-4c15-8ff5-689c29233d10",
+    "resourceVersion": "1795861284256991",
+    "generation": 14,
+    "creationTimestamp": "2026-11-27T20:48:07Z",
+    "labels": {
+      "grafana.app/deprecatedInternalID": "718785334235136"
+    },
+    "annotations": {
+      "grafana.app/createdBy": "user:dg5koiezjr7y8e",
+      "grafana.app/folder": "nasa-eonet",
+      "grafana.app/saved-from-ui": "Grafana v13.3.2 (bd75498687)",
+      "grafana.app/updatedBy": "user:dg5koiezjr7y8e",
+      "grafana.app/updatedTimestamp": "2026-11-28T10:21:24Z"
+    },
+    "managedFields": [
       {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${DS_POSTGRESQL}"
-        },
-        "enable": true,
-        "hide": false,
-        "iconColor": "#FF9830",
-        "name": "Service Restart",
-        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ' (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('service_restart', 'service_start', 'service_stop') AND $__timeFilter(event_ts) ORDER BY event_ts;",
-        "showIn": 0
-      },
-      {
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${DS_POSTGRESQL}"
-        },
-        "enable": true,
-        "hide": false,
-        "iconColor": "#5794F2",
-        "name": "Model Retrain",
-        "rawQuery": "SELECT event_ts AS time, 'RETRAIN (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('model_retrain_benchmark', 'model_retrain', 'retrain') AND $__timeFilter(event_ts) ORDER BY event_ts;",
-        "showIn": 0
-      },
-      {
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${DS_POSTGRESQL}"
-        },
-        "enable": true,
-        "hide": false,
-        "iconColor": "#B877D9",
-        "name": "Deployment",
-        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ': ' || model_version AS title, COALESCE(details::text, component) AS text FROM eonet_lifecycle_events WHERE event_type IN ('champion_deployed', 'champion_promoted', 'deployment') AND $__timeFilter(event_ts) ORDER BY event_ts;",
-        "showIn": 0
-      },
-      {
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${DS_POSTGRESQL}"
-        },
-        "enable": true,
-        "hide": false,
-        "iconColor": "#F2495C",
-        "name": "Train / Test Split",
-        "rawQuery": "SELECT event_ts AS time, 'TRAIN / TEST SPLIT (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('train_test_cutoff', 'temporal_train_test_split') AND $__timeFilter(event_ts) ORDER BY event_ts;",
-        "showIn": 0
+        "manager": "grafana",
+        "operation": "Update",
+        "apiVersion": "dashboard.grafana.app/v0alpha1",
+        "time": "2026-11-27T23:21:36Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:grafana.app/folder": {},
+              "f:grafana.app/grant-permissions": {}
+            }
+          },
+          "f:spec": {
+            "f:annotations": {
+              ".": {},
+              "f:list": {}
+            },
+            "f:editable": {},
+            "f:graphTooltip": {},
+            "f:links": {},
+            "f:panels": {},
+            "f:schemaVersion": {},
+            "f:tags": {},
+            "f:templating": {
+              ".": {},
+              "f:list": {}
+            },
+            "f:time": {
+              ".": {},
+              "f:from": {},
+              "f:to": {}
+            },
+            "f:timezone": {},
+            "f:title": {}
+          }
+        }
       }
     ]
   },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "links": [],
-  "panels": [
-    {
-      "datasource": {
-        "type": "grafana",
-        "uid": "-- Grafana --"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 10,
-      "options": {
-        "code": {
-          "language": "html",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "<div style=\"background: transparent; border-bottom: 1px solid rgba(159, 179, 200, 0.22); padding: 8px 4px 12px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;\">\n  <div>\n    <div style=\"font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: 0.2px; line-height: 1.25;\">NASA EONET v3 + NASA POWER &mdash; Global Hazard Operations &amp; Horizon Forecast</div>\n    <div style=\"font-size: 13.5px; color: #cbd5e1; margin-top: 5px; line-height: 1.4;\">Real-Time Lakehouse: <span style=\"color:#73bf69; font-weight:600;\">Kafka KRaft</span> &rarr; <span style=\"color:#5794f2; font-weight:600;\">Spark Structured Streaming</span> &rarr; <span style=\"color:#ff9830; font-weight:600;\">TimescaleDB</span> &nbsp;|&nbsp; Filter by <b>Category</b> or <b>Search Event</b> above to auto-zoom onto any hazard.</div>\n  </div>\n  <div style=\"display: flex; gap: 10px; align-items: center;\">\n    <span style=\"border: 1px solid #73bf69; color: #73bf69; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">&#9679; LIVE STREAMING</span>\n    <span style=\"border: 1px solid #5794f2; color: #5794f2; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">CHAMPION / SHADOW ML</span>\n  </div>\n</div>",
-        "mode": "html"
-      },
-      "title": "",
-      "transparent": true,
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
-          },
-          "unit": "short"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 3
-      },
-      "id": 1,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "value"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.event_id) AS active_open_hazards FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
-          "refId": "A"
-        }
-      ],
-      "title": "Active Open Hazards",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 72
-              },
-              {
-                "color": "red",
-                "value": 240
-              }
-            ]
-          },
-          "unit": "h"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 3
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "value"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT ROUND(AVG(pred_remaining_hours)::numeric, 1) AS avg_remaining_h FROM (SELECT DISTINCT ON (p.event_id) p.pred_remaining_hours FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s;",
-          "refId": "A"
-        }
-      ],
-      "title": "Avg Remaining Forecast (Deployed Champion)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 5
-              },
-              {
-                "color": "red",
-                "value": 20
-              }
-            ]
-          },
-          "unit": "short"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 3
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "value"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(*) AS high_critical_count FROM (SELECT DISTINCT ON (p.event_id) p.pred_severity_tier FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s WHERE pred_severity_tier >= 2;",
-          "refId": "A"
-        }
-      ],
-      "title": "High & Critical Hazards (Tier >= 2)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "unit": "short"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 3
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "value"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.category_id) AS active_categories FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');",
-          "refId": "A"
-        }
-      ],
-      "title": "Active Hazard Categories",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 2
-              },
-              {
-                "color": "dark-red",
-                "value": 3
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Severity"
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana",
+            "version": "v0",
+            "datasource": {
+              "name": "-- Grafana --"
             },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "green",
-                        "index": 0,
-                        "text": "0 - Low"
+            "spec": {}
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "builtIn": true
+        }
+      }
+    ],
+    "cursorSync": "Crosshair",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1,
+          "title": "Active Open Hazards",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
                       },
-                      "1": {
-                        "color": "orange",
-                        "index": 1,
-                        "text": "1 - Moderate"
-                      },
-                      "2": {
-                        "color": "red",
-                        "index": 2,
-                        "text": "2 - High"
-                      },
-                      "3": {
-                        "color": "dark-red",
-                        "index": 3,
-                        "text": "3 - Critical"
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.event_id) AS active_open_hazards FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');"
                       }
                     },
-                    "type": "value"
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "fixed",
+                    "fixedColor": "green"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "id": 10,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "html",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "<div style=\"background: transparent; border-bottom: 1px solid rgba(159, 179, 200, 0.22); padding: 8px 4px 12px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;\">\n  <div>\n    <div style=\"font-size: 25px; font-weight: 700; color: #f8fafc; letter-spacing: 0.2px; line-height: 1.25;\">EONET Domain KPIs &mdash; Global Hazard Operations &amp; Severity Geomap</div>\n    <div style=\"font-size: 15px; color: #cbd5e1; margin-top: 5px; line-height: 1.4;\">Track Active Open Hazards, Remaining duration and high severity alerts &rarr; Filter by <span style=\"color:#73bf69; font-weight:600;\">Category</span> or <span style=\"color:#5794f2; font-weight:600;\">Search Event</span>  above to auto-zoom onto any hazard.</div>\n  </div>\n  <div style=\"display: flex; gap: 10px; align-items: center;\">\n    <span style=\"border: 1px solid #73bf69; color: #73bf69; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">&#9679; LIVE STREAMING</span>\n  </div>\n</div>",
+                "mode": "html"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          },
+          "transparent": true
+        }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "id": 2,
+          "title": "Avg Remaining Forecast Duration",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT ROUND(AVG(pred_remaining_hours)::numeric, 1) AS avg_remaining_h FROM (SELECT DISTINCT ON (p.event_id) p.pred_remaining_hours FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s;",
+                        "sql": {
+                          "columns": [
+                            {
+                              "parameters": [],
+                              "type": "function"
+                            }
+                          ],
+                          "groupBy": [
+                            {
+                              "property": {
+                                "type": "string"
+                              },
+                              "type": "groupBy"
+                            }
+                          ],
+                          "limit": 50
+                        }
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "h",
+                  "decimals": 1,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 72,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 240,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "id": 3,
+          "title": "High & Critical Hazards (Tier >= 2)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(*) AS high_critical_count FROM (SELECT DISTINCT ON (p.event_id) p.pred_severity_tier FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC) s WHERE pred_severity_tier >= 2;"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 5,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 20,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "id": 4,
+          "title": "Active Hazard Categories",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT COUNT(DISTINCT p.category_id) AS active_categories FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%');"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "fixed",
+                    "fixedColor": "blue"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "id": 5,
+          "title": "Global Active Hazards Map (Category Icons: Cyclone, Fire, Ice | Color = Severity)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "geomap",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "basemap": {
+                  "config": {
+                    "server": "streets"
+                  },
+                  "name": "Layer 0",
+                  "noRepeat": false,
+                  "type": "esri-xyz"
+                },
+                "controls": {
+                  "mouseWheelZoom": true,
+                  "showAttribution": false,
+                  "showDebug": false,
+                  "showMeasure": false,
+                  "showScale": true,
+                  "showZoom": true
+                },
+                "layers": [
+                  {
+                    "config": {
+                      "showLegend": true,
+                      "style": {
+                        "color": {
+                          "field": "Severity",
+                          "fixed": "green"
+                        },
+                        "opacity": 0.92,
+                        "rotation": {
+                          "fixed": 0,
+                          "max": 360,
+                          "min": -360,
+                          "mode": "mod"
+                        },
+                        "size": {
+                          "field": "Severity",
+                          "fixed": 11,
+                          "max": 18,
+                          "min": 10
+                        },
+                        "symbol": {
+                          "fixed": "img/icons/eonet/cyclone.svg",
+                          "mode": "fixed"
+                        },
+                        "symbolAlign": {
+                          "horizontal": "center",
+                          "vertical": "center"
+                        },
+                        "text": {
+                          "field": "Map Label",
+                          "fixed": "",
+                          "mode": "field"
+                        },
+                        "textConfig": {
+                          "fontSize": 11,
+                          "offsetX": 0,
+                          "offsetY": -16,
+                          "textAlign": "center",
+                          "textBaseline": "bottom"
+                        }
+                      }
+                    },
+                    "filterData": {
+                      "id": "byValue",
+                      "options": {
+                        "fieldName": "Category",
+                        "operator": "equals",
+                        "value": "severeStorms"
+                      }
+                    },
+                    "location": {
+                      "latitude": "latitude",
+                      "longitude": "longitude",
+                      "mode": "coords"
+                    },
+                    "name": "Cyclones & Severe Storms",
+                    "tooltip": true,
+                    "type": "markers"
+                  },
+                  {
+                    "config": {
+                      "showLegend": false,
+                      "style": {
+                        "color": {
+                          "field": "Severity",
+                          "fixed": "green"
+                        },
+                        "opacity": 0.92,
+                        "rotation": {
+                          "fixed": 0,
+                          "max": 360,
+                          "min": -360,
+                          "mode": "mod"
+                        },
+                        "size": {
+                          "field": "Severity",
+                          "fixed": 11,
+                          "max": 18,
+                          "min": 10
+                        },
+                        "symbol": {
+                          "fixed": "img/icons/eonet/fire.svg",
+                          "mode": "fixed"
+                        },
+                        "symbolAlign": {
+                          "horizontal": "center",
+                          "vertical": "center"
+                        },
+                        "text": {
+                          "field": "Map Label",
+                          "fixed": "",
+                          "mode": "field"
+                        },
+                        "textConfig": {
+                          "fontSize": 11,
+                          "offsetX": 0,
+                          "offsetY": -16,
+                          "textAlign": "center",
+                          "textBaseline": "bottom"
+                        }
+                      }
+                    },
+                    "filterData": {
+                      "id": "byValue",
+                      "options": {
+                        "fieldName": "Category",
+                        "operator": "equals",
+                        "value": "wildfires"
+                      }
+                    },
+                    "location": {
+                      "latitude": "latitude",
+                      "longitude": "longitude",
+                      "mode": "coords"
+                    },
+                    "name": "Wildfires",
+                    "tooltip": true,
+                    "type": "markers"
+                  },
+                  {
+                    "config": {
+                      "showLegend": false,
+                      "style": {
+                        "color": {
+                          "field": "Severity",
+                          "fixed": "green"
+                        },
+                        "opacity": 0.92,
+                        "rotation": {
+                          "fixed": 0,
+                          "max": 360,
+                          "min": -360,
+                          "mode": "mod"
+                        },
+                        "size": {
+                          "field": "Severity",
+                          "fixed": 11,
+                          "max": 18,
+                          "min": 10
+                        },
+                        "symbol": {
+                          "fixed": "img/icons/eonet/ice.svg",
+                          "mode": "fixed"
+                        },
+                        "symbolAlign": {
+                          "horizontal": "center",
+                          "vertical": "center"
+                        },
+                        "text": {
+                          "field": "Map Label",
+                          "fixed": "",
+                          "mode": "field"
+                        },
+                        "textConfig": {
+                          "fontSize": 11,
+                          "offsetX": 0,
+                          "offsetY": -16,
+                          "textAlign": "center",
+                          "textBaseline": "bottom"
+                        }
+                      }
+                    },
+                    "filterData": {
+                      "id": "byValue",
+                      "options": {
+                        "fieldName": "Category",
+                        "operator": "equals",
+                        "value": "seaLakeIce"
+                      }
+                    },
+                    "location": {
+                      "latitude": "latitude",
+                      "longitude": "longitude",
+                      "mode": "coords"
+                    },
+                    "name": "Sea & Lake Ice",
+                    "tooltip": true,
+                    "type": "markers"
+                  },
+                  {
+                    "config": {
+                      "showLegend": false,
+                      "style": {
+                        "color": {
+                          "field": "Severity",
+                          "fixed": "green"
+                        },
+                        "opacity": 0.92,
+                        "rotation": {
+                          "fixed": 0,
+                          "max": 360,
+                          "min": -360,
+                          "mode": "mod"
+                        },
+                        "size": {
+                          "field": "Severity",
+                          "fixed": 11,
+                          "max": 18,
+                          "min": 10
+                        },
+                        "symbol": {
+                          "fixed": "img/icons/eonet/volcano.svg",
+                          "mode": "fixed"
+                        },
+                        "symbolAlign": {
+                          "horizontal": "center",
+                          "vertical": "center"
+                        },
+                        "text": {
+                          "field": "Map Label",
+                          "fixed": "",
+                          "mode": "field"
+                        },
+                        "textConfig": {
+                          "fontSize": 11,
+                          "offsetX": 0,
+                          "offsetY": -16,
+                          "textAlign": "center",
+                          "textBaseline": "bottom"
+                        }
+                      }
+                    },
+                    "filterData": {
+                      "id": "byValue",
+                      "options": {
+                        "fieldName": "Category",
+                        "operator": "equals",
+                        "value": "volcanoes"
+                      }
+                    },
+                    "location": {
+                      "latitude": "latitude",
+                      "longitude": "longitude",
+                      "mode": "coords"
+                    },
+                    "name": "Volcanoes",
+                    "tooltip": true,
+                    "type": "markers"
+                  },
+                  {
+                    "config": {
+                      "showLegend": false,
+                      "style": {
+                        "color": {
+                          "field": "Severity",
+                          "fixed": "green"
+                        },
+                        "opacity": 0.92,
+                        "rotation": {
+                          "fixed": 0,
+                          "max": 360,
+                          "min": -360,
+                          "mode": "mod"
+                        },
+                        "size": {
+                          "field": "Severity",
+                          "fixed": 11,
+                          "max": 18,
+                          "min": 10
+                        },
+                        "symbol": {
+                          "fixed": "img/icons/eonet/flood.svg",
+                          "mode": "fixed"
+                        },
+                        "symbolAlign": {
+                          "horizontal": "center",
+                          "vertical": "center"
+                        },
+                        "text": {
+                          "field": "Map Label",
+                          "fixed": "",
+                          "mode": "field"
+                        },
+                        "textConfig": {
+                          "fontSize": 11,
+                          "offsetX": 0,
+                          "offsetY": -16,
+                          "textAlign": "center",
+                          "textBaseline": "bottom"
+                        }
+                      }
+                    },
+                    "filterData": {
+                      "id": "byValue",
+                      "options": {
+                        "fieldName": "Category",
+                        "operator": "equals",
+                        "value": "floods"
+                      }
+                    },
+                    "location": {
+                      "latitude": "latitude",
+                      "longitude": "longitude",
+                      "mode": "coords"
+                    },
+                    "name": "Floods",
+                    "tooltip": true,
+                    "type": "markers"
+                  }
+                ],
+                "tooltip": {
+                  "mode": "details"
+                },
+                "view": {
+                  "allLayers": true,
+                  "dashboardVariable": false,
+                  "id": "fit",
+                  "lat": 15,
+                  "lon": 0,
+                  "maxZoom": 9,
+                  "noRepeat": false,
+                  "padding": 50,
+                  "zoom": 1.6
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 1,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 2,
+                        "color": "red"
+                      },
+                      {
+                        "value": 3,
+                        "color": "dark-red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    }
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Severity"
+                    },
+                    "properties": [
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "0": {
+                                "color": "green",
+                                "index": 0,
+                                "text": "0 - Low"
+                              },
+                              "1": {
+                                "color": "orange",
+                                "index": 1,
+                                "text": "1 - Moderate"
+                              },
+                              "2": {
+                                "color": "red",
+                                "index": 2,
+                                "text": "2 - High"
+                              },
+                              "3": {
+                                "color": "dark-red",
+                                "index": 3,
+                                "text": "3 - Critical"
+                              }
+                            },
+                            "type": "value"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
-            ]
+            }
           }
-        ]
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 16,
-        "x": 0,
-        "y": 7
-      },
-      "id": 5,
-      "options": {
-        "basemap": {
-          "config": {},
-          "name": "Layer 0",
-          "type": "default"
-        },
-        "controls": {
-          "mouseWheelZoom": true,
-          "showAttribution": false,
-          "showDebug": false,
-          "showMeasure": false,
-          "showScale": true,
-          "showZoom": true
-        },
-        "layers": [
-          {
-            "config": {
-              "showLegend": true,
-              "style": {
-                "color": {
-                  "field": "Severity",
-                  "fixed": "green"
-                },
-                "opacity": 0.9,
-                "rotation": {
-                  "fixed": 0,
-                  "max": 360,
-                  "min": -360,
-                  "mode": "mod"
-                },
-                "size": {
-                  "field": "Severity",
-                  "fixed": 7,
-                  "max": 14,
-                  "min": 6
-                },
-                "symbol": {
-                  "fixed": "img/icons/marker/circle.svg",
-                  "mode": "fixed"
-                },
-                "symbolAlign": {
-                  "horizontal": "center",
-                  "vertical": "center"
-                },
-                "text": {
-                  "field": "Map Label",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 11,
-                  "offsetX": 0,
-                  "offsetY": -14,
-                  "textAlign": "center",
-                  "textBaseline": "bottom"
-                }
-              }
-            },
-            "location": {
-              "latitude": "latitude",
-              "longitude": "longitude",
-              "mode": "coords"
-            },
-            "name": "Active Natural Hazards",
-            "tooltip": true,
-            "type": "markers"
-          }
-        ],
-        "tooltip": {
-          "mode": "details"
-        },
-        "view": {
-          "allLayers": true,
-          "id": "fit",
-          "lat": 15,
-          "lon": 0,
-          "maxZoom": 9,
-          "padding": 50,
-          "zoom": 1.6
         }
       },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
-          "refId": "A"
-        }
-      ],
-      "title": "Global Active Hazards Map (Auto-Zooms & Labels Filtered Hazards)",
-      "type": "geomap"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic-by-name"
-          },
-          "custom": {
-            "fillOpacity": 90,
-            "gradientMode": "none"
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "severeStorms"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#3274D9",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "wildfires"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF780A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "seaLakeIce"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#00B5D8",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "volcanoes"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FADE2A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "floods"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#73BF69",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 8,
-        "x": 16,
-        "y": 7
-      },
-      "id": 6,
-      "options": {
-        "barRadius": 0.14,
-        "barWidth": 0.62,
-        "colorByField": "Category",
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "always"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT p.category_id AS \"Category\", COUNT(DISTINCT p.event_id) AS \"Open Hazards\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') GROUP BY 1 ORDER BY 2 DESC;",
-          "refId": "A"
-        }
-      ],
-      "title": "Active Open Hazards by Category",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_POSTGRESQL}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": true
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Event ID"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 125
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Hazard Title"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 270
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Category"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 125
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Opened (UTC)"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 165
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Severity"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 120
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "green",
-                        "text": "0 - Low"
+      "panel-6": {
+        "kind": "Panel",
+        "spec": {
+          "id": 6,
+          "title": "Active Open Hazards by Category",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
                       },
-                      "1": {
-                        "color": "orange",
-                        "text": "1 - Moderate"
-                      },
-                      "2": {
-                        "color": "red",
-                        "text": "2 - High"
-                      },
-                      "3": {
-                        "color": "dark-red",
-                        "text": "3 - Critical"
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT p.category_id AS \"Category\", COUNT(DISTINCT p.event_id) AS \"Open Hazards\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') GROUP BY 1 ORDER BY 2 DESC;"
                       }
                     },
-                    "type": "value"
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "barchart",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "barRadius": 0.05,
+                "barWidth": 0.95,
+                "colorByField": "Category",
+                "fullHighlight": false,
+                "groupWidth": 0.8,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "orientation": "horizontal",
+                "showValue": "always",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xField": "time",
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 100
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "fillOpacity": 100,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 0,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "severeStorms"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#3274D9",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "wildfires"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#FF780A",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "seaLakeIce"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#00B5D8",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "volcanoes"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#FADE2A",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "floods"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#73BF69",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
                   }
                 ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
               }
-            ]
+            }
+          },
+          "transparent": true
+        }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "id": 7,
+          "title": "Live Hazard Horizon, Magnitude, Weather Context & Severity Table",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (\r\n    SELECT model_version\r\n    FROM eonet_model_registry\r\n    WHERE deployment_role = 'champion'\r\n    LIMIT 1\r\n)\r\nSELECT DISTINCT ON (p.event_id)\r\n    p.event_id AS \"Event ID\",\r\n    e.title AS \"Hazard Title\",\r\n    p.category_id AS \"Category\",\r\n    e.event_time_utc AS \"Opened (UTC)\",\r\n    p.pred_severity_tier AS \"Severity\",\r\n    COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\",\r\n    ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\",\r\n    ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\",\r\n    ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\",\r\n    ROUND(e.humidity_2m_pct::numeric, 0) AS \"Humidity (%)\",\r\n    ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\"\r\nFROM eonet_predictions p\r\nJOIN eonet_events_stream e ON p.event_id = e.event_id\r\nWHERE p.status = 'open'\r\n  AND p.model_version = (SELECT model_version FROM champ)\r\n  AND p.category_id IN ($category)\r\n  AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%')\r\nORDER BY p.event_id, p.predicted_at_utc DESC;",
+                        "sql": {
+                          "columns": [
+                            {
+                              "parameters": [],
+                              "type": "function"
+                            }
+                          ],
+                          "groupBy": [
+                            {
+                              "property": {
+                                "type": "string"
+                              },
+                              "type": "groupBy"
+                            }
+                          ],
+                          "limit": 50
+                        }
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "13.3.2",
+            "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "enablePagination": true,
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Opened (UTC)"
+                  }
+                ],
+                "zebraStriping": false
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "filterable": true,
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Event ID"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 125
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Hazard Title"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 270
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Category"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 125
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Opened (UTC)"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 165
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Severity"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 120
+                      },
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "0": {
+                                "color": "green",
+                                "text": "0 - Low"
+                              },
+                              "1": {
+                                "color": "orange",
+                                "text": "1 - Moderate"
+                              },
+                              "2": {
+                                "color": "red",
+                                "text": "2 - High"
+                              },
+                              "3": {
+                                "color": "dark-red",
+                                "text": "3 - Critical"
+                              }
+                            },
+                            "type": "value"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-background"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "Active Days"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 183
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "transparent": true
+        }
+      }
+    },
+    "layout": {
+      "kind": "GridLayout",
+      "spec": {
+        "items": [
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 0,
+              "width": 24,
+              "height": 3,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-10"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 3,
+              "width": 15,
+              "height": 18,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-5"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 15,
+              "y": 3,
+              "width": 5,
+              "height": 4,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-1"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 20,
+              "y": 3,
+              "width": 4,
+              "height": 4,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-3"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 15,
+              "y": 7,
+              "width": 5,
+              "height": 4,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-2"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 20,
+              "y": 7,
+              "width": 4,
+              "height": 4,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-4"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 15,
+              "y": 11,
+              "width": 9,
+              "height": 10,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-6"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 21,
+              "width": 24,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-7"
+              }
+            }
           }
         ]
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 19
-      },
-      "id": 7,
-      "options": {
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Opened (UTC)"
-          }
-        ],
-        "enablePagination": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_POSTGRESQL}"
-          },
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(p.pred_duration_hours::numeric, 1) AS \"Pred Total (h)\", ROUND(p.pred_remaining_hours::numeric, 1) AS \"Remaining (h)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.humidity_2m_pct::numeric, 0) AS \"Humidity (%)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;",
-          "refId": "A"
-        }
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": [
+      "nasa-eonet",
+      "domain",
+      "geomap",
+      "presentation"
+    ],
+    "timeSettings": {
+      "timezone": "utc",
+      "from": "now-24h",
+      "to": "now",
+      "autoRefresh": "",
+      "autoRefreshIntervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
       ],
-      "title": "Live Hazard Horizon, Magnitude, Weather Context & Severity Table",
-      "type": "table"
-    }
-  ],
-  "schemaVersion": 39,
-  "tags": [
-    "nasa-eonet",
-    "domain",
-    "geomap",
-    "presentation"
-  ],
-  "templating": {
-    "list": [
+      "hideTimepicker": false,
+      "fiscalYearStartMonth": 0
+    },
+    "title": "01 - NASA EONET Domain KPIs & Severity Geomap",
+    "variables": [
       {
-        "hide": 2,
-        "label": "PostgreSQL / TimescaleDB",
-        "name": "DS_POSTGRESQL",
-        "query": "grafana-postgresql-datasource",
-        "refresh": 1,
-        "type": "datasource"
-      },
-      {
-        "allValue": "",
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${DS_POSTGRESQL}"
-        },
-        "definition": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Category",
-        "multi": true,
-        "name": "category",
-        "query": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;",
-        "refresh": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
-        },
-        "description": "Type any Event ID (e.g. EONET_26463) or Title keyword (e.g. Little Ridge) and press Enter",
-        "hide": 0,
-        "label": "Search Event (ID or Title)",
-        "name": "event_search",
-        "options": [
-          {
-            "selected": true,
+        "kind": "DatasourceVariable",
+        "spec": {
+          "name": "DS_POSTGRESQL",
+          "pluginId": "grafana-postgresql-datasource",
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "current": {
             "text": "",
             "value": ""
-          }
-        ],
-        "query": "",
-        "type": "textbox"
+          },
+          "options": [],
+          "multi": false,
+          "includeAll": false,
+          "label": "PostgreSQL / TimescaleDB",
+          "hide": "hideVariable",
+          "skipUrlSync": false,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "category",
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "label": "Category",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana-postgresql-datasource",
+            "version": "v0",
+            "datasource": {
+              "name": "ag5ljhsr3kzk0b"
+            },
+            "spec": {
+              "__legacyStringValue": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "disabled",
+          "definition": "SELECT DISTINCT category_id FROM eonet_predictions WHERE status = 'open' ORDER BY 1;",
+          "options": [],
+          "multi": true,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "TextVariable",
+        "spec": {
+          "name": "event_search",
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "query": "",
+          "label": "Search Event (ID or Title)",
+          "hide": "dontHide",
+          "skipUrlSync": false,
+          "description": "Type any Event ID (e.g. EONET_26463) or Title keyword (e.g. Little Ridge) and press Enter"
+        }
       }
-    ]
+    ],
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    }
   },
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
-  "timezone": "utc",
-  "title": "01 - NASA EONET Domain KPIs & Severity Geomap",
-  "uid": "eonet-domain-map-v1",
-  "version": 8
+  "status": {
+    "conversion": {
+      "failed": false,
+      "storedVersion": "v0alpha1"
+    }
+  }
 }
