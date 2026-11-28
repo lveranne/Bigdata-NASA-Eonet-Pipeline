@@ -5,8 +5,8 @@
     "name": "eonet-domain-map-v1",
     "namespace": "default",
     "uid": "bc9abd2d-124a-4c15-8ff5-689c29233d10",
-    "resourceVersion": "1795861284256991",
-    "generation": 14,
+    "resourceVersion": "1795861753790997",
+    "generation": 15,
     "creationTimestamp": "2026-11-27T20:48:07Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "718785334235136"
@@ -16,7 +16,7 @@
       "grafana.app/folder": "nasa-eonet",
       "grafana.app/saved-from-ui": "Grafana v13.3.2 (bd75498687)",
       "grafana.app/updatedBy": "user:dg5koiezjr7y8e",
-      "grafana.app/updatedTimestamp": "2026-11-28T10:21:24Z"
+      "grafana.app/updatedTimestamp": "2026-11-28T10:29:13Z"
     },
     "managedFields": [
       {
@@ -502,21 +502,101 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "grafana-postgresql-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "ag5ljhsr3kzk0b"
                       },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND p.category_id IN ($category) AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
-                      }
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'severeStorms' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'wildfires' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'seaLakeIce' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "C"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'volcanoes' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "D"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'floods' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "E"
                   }
                 }
               ],
@@ -555,7 +635,7 @@
                           "field": "Severity",
                           "fixed": "green"
                         },
-                        "opacity": 0.92,
+                        "opacity": 0.95,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -564,9 +644,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/eonet/cyclone.svg",
@@ -584,19 +664,15 @@
                         "textConfig": {
                           "fontSize": 11,
                           "offsetX": 0,
-                          "offsetY": -16,
+                          "offsetY": -18,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
                       }
                     },
                     "filterData": {
-                      "id": "byValue",
-                      "options": {
-                        "fieldName": "Category",
-                        "operator": "equals",
-                        "value": "severeStorms"
-                      }
+                      "id": "byRefId",
+                      "options": "A"
                     },
                     "location": {
                       "latitude": "latitude",
@@ -615,7 +691,7 @@
                           "field": "Severity",
                           "fixed": "green"
                         },
-                        "opacity": 0.92,
+                        "opacity": 0.95,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -624,9 +700,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/eonet/fire.svg",
@@ -644,19 +720,15 @@
                         "textConfig": {
                           "fontSize": 11,
                           "offsetX": 0,
-                          "offsetY": -16,
+                          "offsetY": -18,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
                       }
                     },
                     "filterData": {
-                      "id": "byValue",
-                      "options": {
-                        "fieldName": "Category",
-                        "operator": "equals",
-                        "value": "wildfires"
-                      }
+                      "id": "byRefId",
+                      "options": "B"
                     },
                     "location": {
                       "latitude": "latitude",
@@ -675,7 +747,7 @@
                           "field": "Severity",
                           "fixed": "green"
                         },
-                        "opacity": 0.92,
+                        "opacity": 0.95,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -684,9 +756,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/eonet/ice.svg",
@@ -704,19 +776,15 @@
                         "textConfig": {
                           "fontSize": 11,
                           "offsetX": 0,
-                          "offsetY": -16,
+                          "offsetY": -18,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
                       }
                     },
                     "filterData": {
-                      "id": "byValue",
-                      "options": {
-                        "fieldName": "Category",
-                        "operator": "equals",
-                        "value": "seaLakeIce"
-                      }
+                      "id": "byRefId",
+                      "options": "C"
                     },
                     "location": {
                       "latitude": "latitude",
@@ -735,7 +803,7 @@
                           "field": "Severity",
                           "fixed": "green"
                         },
-                        "opacity": 0.92,
+                        "opacity": 0.95,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -744,9 +812,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/eonet/volcano.svg",
@@ -764,19 +832,15 @@
                         "textConfig": {
                           "fontSize": 11,
                           "offsetX": 0,
-                          "offsetY": -16,
+                          "offsetY": -18,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
                       }
                     },
                     "filterData": {
-                      "id": "byValue",
-                      "options": {
-                        "fieldName": "Category",
-                        "operator": "equals",
-                        "value": "volcanoes"
-                      }
+                      "id": "byRefId",
+                      "options": "D"
                     },
                     "location": {
                       "latitude": "latitude",
@@ -795,7 +859,7 @@
                           "field": "Severity",
                           "fixed": "green"
                         },
-                        "opacity": 0.92,
+                        "opacity": 0.95,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -804,9 +868,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/eonet/flood.svg",
@@ -824,19 +888,15 @@
                         "textConfig": {
                           "fontSize": 11,
                           "offsetX": 0,
-                          "offsetY": -16,
+                          "offsetY": -18,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
                       }
                     },
                     "filterData": {
-                      "id": "byValue",
-                      "options": {
-                        "fieldName": "Category",
-                        "operator": "equals",
-                        "value": "floods"
-                      }
+                      "id": "byRefId",
+                      "options": "E"
                     },
                     "location": {
                       "latitude": "latitude",
