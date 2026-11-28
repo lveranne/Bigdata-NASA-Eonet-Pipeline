@@ -494,6 +494,106 @@
       ],
       "title": "Stream Events Lifecycle Forecast: Active Champion Close vs. Shadow Benchmark Errors",
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_POSTGRESQL}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 88,
+            "lineWidth": 2
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Model Fit Time (s)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3274D9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Job Time incl. YARN Startup (s)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF780A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "id": 6,
+      "options": {
+        "orientation": "vertical",
+        "showValue": "always",
+        "xTickLabelRotation": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_POSTGRESQL}"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT num_executors || ' Executor(s)' AS configuration, fit_duration_sec AS \"Model Fit Time (s)\", total_duration_sec AS \"Total Job Time incl. YARN Startup (s)\" FROM eonet_scaling_benchmark ORDER BY num_executors;",
+          "refId": "A"
+        }
+      ],
+      "title": "Distributed ML Scaling Test: Training Time across 1, 2, and 4 YARN Executors",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana",
+        "uid": "-- Grafana --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "id": 7,
+      "options": {
+        "code": {
+          "language": "html",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"font-family: 'Segoe UI', Inter, sans-serif; font-size: 13px; color: #e2e8f0; line-height: 1.5; padding: 4px 6px;\"><div style=\"font-size: 15px; font-weight: 700; color: #ffffff; margin-bottom: 8px;\">Why More Executors Are Not Always Faster (Empirical Results: 85.0s &rarr; 75.8s &rarr; 85.9s)</div><ul style=\"margin: 0; padding-left: 18px;\"><li style=\"margin-bottom: 6px;\"><b>1 &rarr; 2 Executors (85.03s &rarr; 75.77s, 1.12x Speedup):</b> Distributing 10,917 training rows across both VMs (<code>master</code> &amp; <code>worker</code>) parallelizes tree histogram computation across nodes, cutting pure fit time by 9.3s.</li><li style=\"margin-bottom: 6px;\"><b>2 &rarr; 4 Executors (75.77s &rarr; 85.89s, 0.99x Rebound):</b> <code>GBTRegressor</code> (<code>maxIter=25</code>) builds 25 trees sequentially; each depth level requires driver-executor RPC barriers and shuffles. With 4 executors on a 2-VM cluster, synchronization and JVM task scheduling overhead exceed per-partition compute savings (~1,365 rows/partition).</li><li style=\"margin-bottom: 6px;\"><b>Amdahl&apos;s Law &amp; Fixed YARN Overhead (~48\u201356s):</b> YARN container launch, Spark JAR staging, and Parquet reads remain constant regardless of executor count, making <b>2 executors (1 per VM)</b> the optimal sweet spot for this workload.</li></ul></div>",
+        "mode": "html"
+      },
+      "title": "Scaling Curve Interpretation & Cluster Bottleneck Analysis",
+      "type": "text"
     }
   ],
   "schemaVersion": 39,
@@ -521,5 +621,5 @@
   "timezone": "utc",
   "title": "03 - NASA EONET Model Quality & Champion/Challenger Evaluation",
   "uid": "eonet-ml-quality-v1",
-  "version": 5
+  "version": 6
 }
