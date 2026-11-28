@@ -5,8 +5,8 @@
     "name": "eonet-domain-map-v1",
     "namespace": "default",
     "uid": "bc9abd2d-124a-4c15-8ff5-689c29233d10",
-    "resourceVersion": "1795862138923005",
-    "generation": 19,
+    "resourceVersion": "1795862278632004",
+    "generation": 20,
     "creationTimestamp": "2026-11-27T20:48:07Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "718785334235136"
@@ -16,7 +16,7 @@
       "grafana.app/folder": "nasa-eonet",
       "grafana.app/saved-from-ui": "Grafana v13.3.2 (bd75498687)",
       "grafana.app/updatedBy": "user:dg5koiezjr7y8e",
-      "grafana.app/updatedTimestamp": "2026-11-28T10:35:38Z"
+      "grafana.app/updatedTimestamp": "2026-11-28T10:37:58Z"
     },
     "managedFields": [
       {
@@ -502,101 +502,121 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "grafana-postgresql-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "ag5ljhsr3kzk0b"
                       },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'severeStorms' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
-                      }
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE '${event_search}' <> '' AND p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND (p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "F"
                   }
                 },
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "grafana-postgresql-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "ag5ljhsr3kzk0b"
                       },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'wildfires' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
-                      }
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'severeStorms' AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND (('${event_search}' = '' AND p.category_id IN ($category))      OR ('${event_search}' <> '' AND (p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%'))) ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "B",
-                    "hidden": false
+                    "refId": "A"
                   }
                 },
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "grafana-postgresql-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "ag5ljhsr3kzk0b"
                       },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'seaLakeIce' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
-                      }
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'wildfires' AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND (('${event_search}' = '' AND p.category_id IN ($category))      OR ('${event_search}' <> '' AND (p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%'))) ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "C",
-                    "hidden": false
+                    "refId": "B"
                   }
                 },
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "grafana-postgresql-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "ag5ljhsr3kzk0b"
                       },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'volcanoes' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
-                      }
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'seaLakeIce' AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND (('${event_search}' = '' AND p.category_id IN ($category))      OR ('${event_search}' <> '' AND (p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%'))) ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "D",
-                    "hidden": false
+                    "refId": "C"
                   }
                 },
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "grafana-postgresql-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "ag5ljhsr3kzk0b"
                       },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'floods' AND p.category_id IN ($category) AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND ('${event_search}' = '' OR p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%') ORDER BY p.event_id, p.predicted_at_utc DESC;"
-                      }
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'volcanoes' AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND (('${event_search}' = '' AND p.category_id IN ($category))      OR ('${event_search}' <> '' AND (p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%'))) ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "E",
-                    "hidden": false
+                    "refId": "D"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "ag5ljhsr3kzk0b"
+                      },
+                      "group": "grafana-postgresql-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "format": "table",
+                        "rawQuery": true,
+                        "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1) SELECT DISTINCT ON (p.event_id) p.event_id AS \"Event ID\", e.title AS \"Hazard Title\", CASE WHEN '${event_search}' <> '' THEN p.event_id || ' \u2022 ' || LEFT(e.title, 28) ELSE '' END AS \"Map Label\", p.category_id AS \"Category\", e.event_time_utc AS \"Opened (UTC)\", e.latitude, e.longitude, p.pred_severity_tier AS \"Severity\", COALESCE(ROUND(e.magnitude_value::numeric, 1)::text || ' ' || COALESCE(e.magnitude_unit, ''), 'N/A') AS \"Magnitude\", ROUND(GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.event_time_utc)) / 86400.0)::numeric, 1) AS \"Active Days\", ROUND((p.pred_remaining_hours / 24.0)::numeric, 1) AS \"Remaining (d)\", ROUND(e.temp_2m_c::numeric, 1) AS \"Temp (\u00b0C)\", ROUND(e.wind_10m_ms::numeric, 1) AS \"Wind (m/s)\" FROM eonet_predictions p JOIN eonet_events_stream e ON p.event_id = e.event_id WHERE p.status = 'open' AND p.model_version = (SELECT model_version FROM champ) AND p.category_id = 'floods' AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL AND (('${event_search}' = '' AND p.category_id IN ($category))      OR ('${event_search}' <> '' AND (p.event_id ILIKE '%${event_search}%' OR e.title ILIKE '%${event_search}%'))) ORDER BY p.event_id, p.predicted_at_utc DESC;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "E"
                   }
                 }
               ],
@@ -611,12 +631,9 @@
             "spec": {
               "options": {
                 "basemap": {
-                  "config": {
-                    "server": "streets"
-                  },
+                  "config": {},
                   "name": "Layer 0",
-                  "noRepeat": false,
-                  "type": "esri-xyz"
+                  "type": "default"
                 },
                 "controls": {
                   "mouseWheelZoom": true,
@@ -629,13 +646,57 @@
                 "layers": [
                   {
                     "config": {
+                      "showLegend": false,
+                      "style": {
+                        "color": {
+                          "fixed": "#38BDF8",
+                          "mode": "fixed"
+                        },
+                        "opacity": 0.35,
+                        "rotation": {
+                          "fixed": 0,
+                          "max": 360,
+                          "min": -360,
+                          "mode": "mod"
+                        },
+                        "size": {
+                          "fixed": 34,
+                          "max": 34,
+                          "min": 34,
+                          "mode": "fixed"
+                        },
+                        "symbol": {
+                          "fixed": "img/icons/marker/circle.svg",
+                          "mode": "fixed"
+                        },
+                        "symbolAlign": {
+                          "horizontal": "center",
+                          "vertical": "center"
+                        }
+                      }
+                    },
+                    "filterData": {
+                      "id": "byRefId",
+                      "options": "F"
+                    },
+                    "location": {
+                      "latitude": "latitude",
+                      "longitude": "longitude",
+                      "mode": "coords"
+                    },
+                    "name": "Filtered Event Spotlight",
+                    "tooltip": false,
+                    "type": "markers"
+                  },
+                  {
+                    "config": {
                       "showLegend": true,
                       "style": {
                         "color": {
                           "field": "Severity",
-                          "fixed": "green"
+                          "fixed": "#00E676"
                         },
-                        "opacity": 0.95,
+                        "opacity": 1.0,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -644,9 +705,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 12,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/unicons/wind.svg",
@@ -662,9 +723,9 @@
                           "mode": "field"
                         },
                         "textConfig": {
-                          "fontSize": 11,
+                          "fontSize": 12,
                           "offsetX": 0,
-                          "offsetY": -18,
+                          "offsetY": -20,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
@@ -689,9 +750,9 @@
                       "style": {
                         "color": {
                           "field": "Severity",
-                          "fixed": "green"
+                          "fixed": "#00E676"
                         },
-                        "opacity": 0.95,
+                        "opacity": 1.0,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -700,9 +761,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 12,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/unicons/fire.svg",
@@ -718,9 +779,9 @@
                           "mode": "field"
                         },
                         "textConfig": {
-                          "fontSize": 11,
+                          "fontSize": 12,
                           "offsetX": 0,
-                          "offsetY": -18,
+                          "offsetY": -20,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
@@ -745,9 +806,9 @@
                       "style": {
                         "color": {
                           "field": "Severity",
-                          "fixed": "green"
+                          "fixed": "#00E676"
                         },
-                        "opacity": 0.95,
+                        "opacity": 1.0,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -756,9 +817,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 12,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/unicons/snowflake.svg",
@@ -774,9 +835,9 @@
                           "mode": "field"
                         },
                         "textConfig": {
-                          "fontSize": 11,
+                          "fontSize": 12,
                           "offsetX": 0,
-                          "offsetY": -18,
+                          "offsetY": -20,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
@@ -801,9 +862,9 @@
                       "style": {
                         "color": {
                           "field": "Severity",
-                          "fixed": "green"
+                          "fixed": "#00E676"
                         },
-                        "opacity": 0.95,
+                        "opacity": 1.0,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -812,12 +873,12 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 12,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
-                          "fixed": "img/icons/unicons/exclamation-triangle.svg",
+                          "fixed": "img/icons/marker/triangle.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -830,9 +891,9 @@
                           "mode": "field"
                         },
                         "textConfig": {
-                          "fontSize": 11,
+                          "fontSize": 12,
                           "offsetX": 0,
-                          "offsetY": -18,
+                          "offsetY": -20,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
@@ -857,9 +918,9 @@
                       "style": {
                         "color": {
                           "field": "Severity",
-                          "fixed": "green"
+                          "fixed": "#00E676"
                         },
-                        "opacity": 0.95,
+                        "opacity": 1.0,
                         "rotation": {
                           "fixed": 0,
                           "max": 360,
@@ -868,9 +929,9 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 12,
-                          "max": 18,
-                          "min": 10
+                          "fixed": 16,
+                          "max": 24,
+                          "min": 14
                         },
                         "symbol": {
                           "fixed": "img/icons/unicons/water.svg",
@@ -886,9 +947,9 @@
                           "mode": "field"
                         },
                         "textConfig": {
-                          "fontSize": 11,
+                          "fontSize": 12,
                           "offsetX": 0,
-                          "offsetY": -18,
+                          "offsetY": -20,
                           "textAlign": "center",
                           "textBaseline": "bottom"
                         }
@@ -917,9 +978,9 @@
                   "id": "fit",
                   "lat": 15,
                   "lon": 0,
-                  "maxZoom": 9,
+                  "maxZoom": 6,
                   "noRepeat": false,
-                  "padding": 50,
+                  "padding": 65,
                   "zoom": 1.6
                 }
               },
@@ -929,20 +990,20 @@
                     "mode": "absolute",
                     "steps": [
                       {
-                        "value": 0,
-                        "color": "green"
+                        "color": "#00E676",
+                        "value": 0
                       },
                       {
-                        "value": 1,
-                        "color": "orange"
+                        "color": "#FFB300",
+                        "value": 1
                       },
                       {
-                        "value": 2,
-                        "color": "red"
+                        "color": "#FF3D00",
+                        "value": 2
                       },
                       {
-                        "value": 3,
-                        "color": "dark-red"
+                        "color": "#FF1744",
+                        "value": 3
                       }
                     ]
                   },
@@ -970,22 +1031,22 @@
                           {
                             "options": {
                               "0": {
-                                "color": "green",
+                                "color": "#00E676",
                                 "index": 0,
                                 "text": "0 - Low"
                               },
                               "1": {
-                                "color": "orange",
+                                "color": "#FFB300",
                                 "index": 1,
                                 "text": "1 - Moderate"
                               },
                               "2": {
-                                "color": "red",
+                                "color": "#FF3D00",
                                 "index": 2,
                                 "text": "2 - High"
                               },
                               "3": {
-                                "color": "dark-red",
+                                "color": "#FF1744",
                                 "index": 3,
                                 "text": "3 - Critical"
                               }
@@ -1625,12 +1686,6 @@
           "items": []
         }
       }
-    }
-  },
-  "status": {
-    "conversion": {
-      "failed": false,
-      "storedVersion": "v0alpha1"
     }
   }
 }
