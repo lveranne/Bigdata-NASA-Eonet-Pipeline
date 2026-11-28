@@ -5,8 +5,8 @@
     "name": "eonet-domain-map-v1",
     "namespace": "default",
     "uid": "bc9abd2d-124a-4c15-8ff5-689c29233d10",
-    "resourceVersion": "1795862019654008",
-    "generation": 18,
+    "resourceVersion": "1795862138923005",
+    "generation": 19,
     "creationTimestamp": "2026-11-27T20:48:07Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "718785334235136"
@@ -16,7 +16,7 @@
       "grafana.app/folder": "nasa-eonet",
       "grafana.app/saved-from-ui": "Grafana v13.3.2 (bd75498687)",
       "grafana.app/updatedBy": "user:dg5koiezjr7y8e",
-      "grafana.app/updatedTimestamp": "2026-11-28T10:33:39Z"
+      "grafana.app/updatedTimestamp": "2026-11-28T10:35:38Z"
     },
     "managedFields": [
       {
@@ -649,7 +649,7 @@
                           "min": 10
                         },
                         "symbol": {
-                          "fixed": "img/icons/unicons/eonet-cyclone.svg",
+                          "fixed": "img/icons/unicons/wind.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -705,7 +705,7 @@
                           "min": 10
                         },
                         "symbol": {
-                          "fixed": "img/icons/unicons/eonet-fire.svg",
+                          "fixed": "img/icons/unicons/fire.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -761,7 +761,7 @@
                           "min": 10
                         },
                         "symbol": {
-                          "fixed": "img/icons/unicons/eonet-ice.svg",
+                          "fixed": "img/icons/unicons/snowflake.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -817,7 +817,7 @@
                           "min": 10
                         },
                         "symbol": {
-                          "fixed": "img/icons/unicons/eonet-volcano.svg",
+                          "fixed": "img/icons/unicons/exclamation-triangle.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -873,7 +873,7 @@
                           "min": 10
                         },
                         "symbol": {
-                          "fixed": "img/icons/unicons/eonet-flood.svg",
+                          "fixed": "img/icons/unicons/water.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
