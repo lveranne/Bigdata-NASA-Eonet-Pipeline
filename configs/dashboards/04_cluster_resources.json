@@ -1,0 +1,449 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "code": { "language": "html", "showLineNumbers": false, "showMiniMap": false },
+        "content": "<div style=\"background: transparent; border-bottom: 1px solid rgba(159, 179, 200, 0.22); padding: 8px 4px 12px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;\">\n  <div>\n    <div style=\"font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: 0.2px; line-height: 1.25;\">NASA EONET Lakehouse &mdash; 2-Node VirtualBox Cluster Infrastructure &amp; Telemetry</div>\n    <div style=\"font-size: 13.5px; color: #cbd5e1; margin-top: 5px; line-height: 1.4;\"><span style=\"color:#73bf69; font-weight:600;\">master (192.168.56.30)</span>: NameNode &bull; ResourceManager &bull; Kafka KRaft &bull; Spark Driver &nbsp;|&nbsp; <span style=\"color:#5794f2; font-weight:600;\">worker (192.168.56.31)</span>: DataNode &bull; NodeManager &bull; TimescaleDB &bull; Grafana</div>\n  </div>\n  <div style=\"display: flex; gap: 10px; align-items: center;\">\n    <span style=\"border: 1px solid #73bf69; color: #73bf69; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">&#9679; PROMETHEUS SCRAPE: 15s</span>\n    <span style=\"border: 1px solid #00b5d8; color: #00b5d8; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">FABRIC: 192.168.56.0/24</span>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "green", "value": 2 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 3 },
+      "id": 1,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(up{instance=~\"(master|worker):9100\"})", "refId": "A" }],
+      "title": "Cluster Nodes Online",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 3 },
+      "id": 2,
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "100 * (1 - sum(node_memory_MemAvailable_bytes{instance=~\"(master|worker):9100\"}) / sum(node_memory_MemTotal_bytes{instance=~\"(master|worker):9100\"}))", "refId": "A" }],
+      "title": "Cluster RAM Utilization",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#5794F2", "mode": "fixed" },
+          "decimals": 2,
+          "unit": "bytes"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 3 },
+      "id": 3,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(node_memory_MemTotal_bytes{instance=~\"(master|worker):9100\"})", "refId": "A" }],
+      "title": "Total Cluster RAM Capacity",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 65 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 3 },
+      "id": 4,
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=~\"(master|worker):9100\"}[1m])) * 100)", "refId": "A" }],
+      "title": "Cluster Avg CPU Load",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 2.0 },
+              { "color": "red", "value": 4.0 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 3 },
+      "id": 5,
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "max(node_load1{instance=~\"(master|worker):9100\"})", "refId": "A" }],
+      "title": "Peak 1-Min Load Average",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#00B5D8", "mode": "fixed" },
+          "decimals": 1,
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 3 },
+      "id": 6,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "max(node_time_seconds{instance=~\"(master|worker):9100\"} - node_boot_time_seconds{instance=~\"(master|worker):9100\"})", "refId": "A" }],
+      "title": "Cluster Uptime",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 1,
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 7 },
+      "id": 7,
+      "options": {
+        "displayMode": "lcd",
+        "minVizHeight": 14,
+        "minVizWidth": 14,
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(100 * (1 - node_memory_MemAvailable_bytes{instance=~\"(master|worker):9100\"} / node_memory_MemTotal_bytes{instance=~\"(master|worker):9100\"}), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Per-Node RAM Utilization (%) — Spark Driver / Executors & TimescaleDB",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 1,
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 7 },
+      "id": 8,
+      "options": {
+        "displayMode": "lcd",
+        "minVizHeight": 14,
+        "minVizWidth": 14,
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\",instance=~\"(master|worker):9100\"} / node_filesystem_size_bytes{mountpoint=\"/\",instance=~\"(master|worker):9100\"}), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} (/)",
+          "refId": "A"
+        }
+      ],
+      "title": "Root & HDFS Storage Disk Utilization (%)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 18,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "max": 100,
+          "min": 0,
+          "unit": "percent"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "master — Total CPU" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "worker — Total CPU" }, "properties": [{ "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }] },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*IOWait.*" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "#FF780A", "mode": "fixed" } },
+              { "id": "custom.lineStyle", "value": { "dash": [5, 4], "fill": "dash" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "id": 9,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\",instance=~\"(master|worker):9100\"}[1m])) * 100), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} — Total CPU",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(avg by (instance) (rate(node_cpu_seconds_total{mode=\"iowait\",instance=~\"(master|worker):9100\"}[1m])) * 100, \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} — IOWait",
+          "refId": "B"
+        }
+      ],
+      "title": "Node CPU Utilization & Disk IOWait Over Time (%)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 18,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "master — Active Used RAM" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "worker — Active Used RAM" }, "properties": [{ "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }] },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*Page Cache.*" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "dash": [5, 4], "fill": "dash" } },
+              { "id": "custom.fillOpacity", "value": 5 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "id": 11,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(node_memory_MemTotal_bytes{instance=~\"(master|worker):9100\"} - node_memory_MemAvailable_bytes{instance=~\"(master|worker):9100\"}, \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} — Active Used RAM",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(node_memory_Cached_bytes{instance=~\"(master|worker):9100\"} + node_memory_Buffers_bytes{instance=~\"(master|worker):9100\"}, \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} — OS Page Cache (HDFS)",
+          "refId": "B"
+        }
+      ],
+      "title": "Node Memory Footprint: Active JVM/DB RAM vs. Linux Page Cache",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "Bps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "id": 12,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(rate(node_network_receive_bytes_total{device=\"enp0s8\",instance=~\"(master|worker):9100\"}[1m]), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} RX (enp0s8 Cluster)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(rate(node_network_transmit_bytes_total{device=\"enp0s8\",instance=~\"(master|worker):9100\"}[1m]), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} TX (enp0s8 Cluster)",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(rate(node_network_receive_bytes_total{device=\"enp0s3\",instance=~\"(master|worker):9100\"}[1m]), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} RX (enp0s3 NASA API)",
+          "refId": "C"
+        }
+      ],
+      "title": "Cluster Network I/O: Host-Only Fabric (enp0s8) vs. External API (enp0s3)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "Bps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "id": 13,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(sum by (instance) (rate(node_disk_read_bytes_total{device!~\"loop.*\",instance=~\"(master|worker):9100\"}[1m])), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} — Disk Read (Parquet / WAL)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "label_replace(sum by (instance) (rate(node_disk_written_bytes_total{device!~\"loop.*\",instance=~\"(master|worker):9100\"}[1m])), \"node\", \"$1\", \"instance\", \"([^:]+):.*\")",
+          "legendFormat": "{{node}} — Disk Write (HDFS / Kafka / DB)",
+          "refId": "B"
+        }
+      ],
+      "title": "Disk Storage I/O Throughput: HDFS Blocks, Kafka Logs & TimescaleDB WAL",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["nasa-eonet", "cluster", "prometheus", "infrastructure", "presentation"],
+  "templating": {
+    "list": [
+      {
+        "hide": 2,
+        "label": "Prometheus",
+        "name": "DS_PROMETHEUS",
+        "query": "prometheus",
+        "refresh": 1,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-30m", "to": "now" },
+  "timezone": "utc",
+  "title": "04 - NASA EONET Cluster Health & Infrastructure Telemetry",
+  "uid": "eonet-cluster-v1",
+  "version": 4
+}
