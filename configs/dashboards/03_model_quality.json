@@ -1,0 +1,978 @@
+{
+  "uid": "eonet-ml-quality-v1",
+  "title": "03 - NASA EONET Model Quality & Champion/Challenger Evaluation",
+  "tags": [
+    "nasa-eonet",
+    "mlops",
+    "xgboost",
+    "gbt",
+    "champion-challenger",
+    "presentation"
+  ],
+  "timezone": "utc",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-180d",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "ag5ljhsr3kzk0b"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#FF9830",
+        "name": "Service Restart",
+        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ' (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('service_restart', 'service_start', 'service_stop') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "ag5ljhsr3kzk0b"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#5794F2",
+        "name": "Model Retrain",
+        "rawQuery": "SELECT event_ts AS time, 'RETRAIN (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('model_retrain_benchmark', 'model_retrain', 'retrain') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "ag5ljhsr3kzk0b"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#B877D9",
+        "name": "Deployment",
+        "rawQuery": "SELECT event_ts AS time, UPPER(event_type) || ': ' || model_version AS title, COALESCE(details::text, component) AS text FROM eonet_lifecycle_events WHERE event_type IN ('champion_deployed', 'champion_promoted', 'deployment') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "ag5ljhsr3kzk0b"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#F2495C",
+        "name": "Train / Test Split",
+        "rawQuery": "SELECT event_ts AS time, 'TRAIN / TEST SPLIT (' || component || ')' AS title, COALESCE(details::text, model_version) AS text FROM eonet_lifecycle_events WHERE event_type IN ('train_test_cutoff', 'temporal_train_test_split') AND $__timeFilter(event_ts) ORDER BY event_ts;",
+        "showIn": 0
+      }
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "hide": 2,
+        "label": "PostgreSQL / TimescaleDB",
+        "name": "DS_POSTGRESQL",
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "type": "datasource"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana",
+        "uid": "-- Grafana --"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "code": {
+          "language": "html",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"background: transparent; border-bottom: 1px solid rgba(159, 179, 200, 0.22); padding: 8px 4px 12px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;\">\n  <div>\n    <div style=\"font-size: 24px; font-weight: 700; color: #f8fafc; letter-spacing: 0.2px; line-height: 1.25;\">Model Quality &amp; Champion/Challenger MLOps Evaluation</div>\n    <div style=\"font-size: 14px; color: #cbd5e1; margin-top: 5px; line-height: 1.4;\">Continuous Generalization Trajectory (<span style=\"color:#5794f2; font-weight:600;\">v1 Baseline</span> vs. <span style=\"color:#eab839; font-weight:600;\">v2 GBT Shadow</span> vs. <span style=\"color:#73bf69; font-weight:600;\">v3 SparkXGBoost Champion</span>) &amp; Live Shadow Scoring</div>\n  </div>\n  <div style=\"display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end;\">\n    <span style=\"border: 1px solid #73bf69; color: #73bf69; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">&#9679; CHAMPION: v3_xgboost</span>\n    <span style=\"border: 1px solid #eab839; color: #eab839; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">SHADOW: v2_gbt &amp; v1_baseline</span>\n    <span style=\"border: 1px solid #00b5d8; color: #00b5d8; padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 600;\">REGIME CUTOFF: 2026-11-27</span>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#73BF69",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "unit": "h"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 3
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(AVG(abs_error_hours)::numeric, 1) AS champ_mae FROM eonet_prediction_history WHERE model_version = 'v3_xgboost' AND actual_duration_hours IS NOT NULL AND data_split = 'test';",
+          "refId": "A"
+        }
+      ],
+      "title": "Champion Out-of-Time MAE (v3 XGBoost)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#00B5D8",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "unit": "h"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 3
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SQRT(AVG(squared_error_hours))::numeric, 1) AS champ_rmse FROM eonet_prediction_history WHERE model_version = 'v3_xgboost' AND actual_duration_hours IS NOT NULL AND data_split = 'test';",
+          "refId": "A"
+        }
+      ],
+      "title": "Champion Out-of-Time RMSE (v3 XGBoost)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 3
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND((\n                  (AVG(CASE WHEN model_version = 'v2_gbt' THEN abs_error_hours END) -\n                   AVG(CASE WHEN model_version = 'v3_xgboost' THEN abs_error_hours END))\n                  / NULLIF(AVG(CASE WHEN model_version = 'v2_gbt' THEN abs_error_hours END), 0) * 100.0\n                )::numeric, 1) AS mae_gain_pct\n                FROM eonet_prediction_history\n                WHERE actual_duration_hours IS NOT NULL AND data_split = 'test';",
+          "refId": "A"
+        }
+      ],
+      "title": "Out-of-Time MAE Gain vs. v2 GBT Shadow",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#EAB839",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 15,
+        "y": 3
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT event_id) AS closed_eval_events FROM eonet_prediction_history WHERE actual_duration_hours IS NOT NULL;",
+          "refId": "A"
+        }
+      ],
+      "title": "Closed Hazards Evaluated (Ground Truth)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#B877D9",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 3
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(MAX(speedup_vs_1_exec)::numeric, 2) * 100 - 100 AS parallel_gain_pct FROM eonet_scaling_benchmark;",
+          "refId": "A"
+        }
+      ],
+      "title": "2-Node YARN Fit Speedup Gain",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "7-Day Rolling MAE (Hours)",
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2.5,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": true
+          },
+          "decimals": 1,
+          "unit": "h"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v1_baseline"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "v1_baseline (Heuristic)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    4,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v2_gbt"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "v2_gbt (Shadow MLlib GBT)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#EAB839",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v3_xgboost"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "v3_xgboost (Champion)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 16,
+        "x": 0,
+        "y": 7
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "asc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH daily_mae AS (\n                      SELECT\n                        time_bucket('1 day', scored_at_utc) AS day_ts,\n                        model_version,\n                        AVG(abs_error_hours) AS daily_mae_h\n                      FROM eonet_prediction_history\n                      WHERE actual_duration_hours IS NOT NULL\n                        AND $__timeFilter(scored_at_utc)\n                      GROUP BY 1, 2\n                    )\n                    SELECT\n                      day_ts AS time,\n                      model_version AS series,\n                      ROUND(\n                        AVG(daily_mae_h) OVER (\n                          PARTITION BY model_version\n                          ORDER BY day_ts\n                          ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\n                        )::numeric,\n                        2\n                      ) AS rolling_mae_hours\n                    FROM daily_mae\n                    ORDER BY 1 ASC, 2 ASC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Continuous 7-Day Rolling MAE Evolution Across Regime Cutoff (v2 GBT vs. v3 XGBoost Crossover)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v3_xgboost (CHAMPION)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v2_gbt (SHADOW)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#EAB839",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v1_baseline (SHADOW)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Tie"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8E8E8E",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 7
+      },
+      "id": 2,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH roles AS (SELECT model_version, UPPER(deployment_role) AS role FROM eonet_model_registry), latest_stream AS (SELECT DISTINCT ON (event_id) event_id, status, ingested_at_utc FROM eonet_events_stream ORDER BY event_id, ingested_at_utc DESC), latest_preds AS (SELECT DISTINCT ON (event_id, model_version) event_id, model_version, elapsed_hours, pred_duration_hours FROM eonet_predictions ORDER BY event_id, model_version, predicted_at_utc DESC), eval_cohort AS (  SELECT s.event_id,     CASE WHEN s.status = 'closed' THEN MAX(p.elapsed_hours)          ELSE GREATEST(MAX(p.elapsed_hours), PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY p.pred_duration_hours)) END AS target_h,     MAX(CASE WHEN p.model_version = 'v1_baseline' THEN p.pred_duration_hours END) AS p1,     MAX(CASE WHEN p.model_version = 'v2_gbt' THEN p.pred_duration_hours END) AS p2,     MAX(CASE WHEN p.model_version = 'v3_xgboost' THEN p.pred_duration_hours END) AS p3   FROM latest_stream s JOIN latest_preds p ON s.event_id = p.event_id GROUP BY s.event_id, s.status), winners AS (  SELECT CASE     WHEN ABS(p3 - target_h) < ABS(p2 - target_h) AND ABS(p3 - target_h) < ABS(p1 - target_h) THEN 'v3_xgboost'     WHEN ABS(p2 - target_h) < ABS(p3 - target_h) AND ABS(p2 - target_h) < ABS(p1 - target_h) THEN 'v2_gbt'     WHEN ABS(p1 - target_h) < ABS(p2 - target_h) AND ABS(p1 - target_h) < ABS(p3 - target_h) THEN 'v1_baseline'     ELSE 'Tie' END AS model_key   FROM eval_cohort WHERE p1 IS NOT NULL AND p2 IS NOT NULL AND p3 IS NOT NULL) SELECT COALESCE(w.model_key || ' (' || r.role || ')', 'Tie') AS winner, COUNT(*) AS wins FROM winners w LEFT JOIN roles r ON w.model_key = r.model_version GROUP BY 1 ORDER BY 2 DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Live Stream Prediction Win Rate (Champion vs. Shadows)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Mean Duration (Hours)",
+            "fillOpacity": 90,
+            "lineWidth": 0
+          },
+          "decimals": 1,
+          "unit": "h"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Actual Duration (h)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F8FAFC",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v1 Predicted (h) - Baseline"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v2 Predicted (h) - GBT"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#EAB839",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "v3 Predicted (h) - XGBoost"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.85,
+        "groupWidth": 0.75,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        },
+        "xField": "category_id"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n                      category_id,\n                      ROUND(AVG(actual_duration_hours)::numeric, 1) AS \"Actual Duration (h)\",\n                      ROUND(AVG(CASE WHEN model_version = 'v1_baseline' THEN pred_duration_hours END)::numeric, 1) AS \"v1 Predicted (h) - Baseline\",\n                      ROUND(AVG(CASE WHEN model_version = 'v2_gbt' THEN pred_duration_hours END)::numeric, 1) AS \"v2 Predicted (h) - GBT\",\n                      ROUND(AVG(CASE WHEN model_version = 'v3_xgboost' THEN pred_duration_hours END)::numeric, 1) AS \"v3 Predicted (h) - XGBoost\"\n                    FROM eonet_prediction_history\n                    WHERE status = 'closed' AND actual_duration_hours IS NOT NULL\n                    GROUP BY 1\n                    ORDER BY COUNT(*) DESC\n                    LIMIT 6;",
+          "refId": "A"
+        }
+      ],
+      "title": "Predicted vs. Actual Hazard Duration by Category (All Closed Events)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Execution Time (Seconds)",
+            "fillOpacity": 90,
+            "lineWidth": 0
+          },
+          "decimals": 1,
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Model Fit Time (s)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00B5D8",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Job Time incl. YARN Startup (s)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF780A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "barRadius": 0.06,
+        "barWidth": 0.7,
+        "groupWidth": 0.65,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        },
+        "xField": "configuration"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT num_executors || ' Executor(s)' AS configuration, fit_duration_sec AS \"Model Fit Time (s)\", total_duration_sec AS \"Total Job Time incl. YARN Startup (s)\" FROM eonet_scaling_benchmark ORDER BY num_executors;",
+          "refId": "A"
+        }
+      ],
+      "title": "Distributed ML Scaling Benchmark: 1 vs. 2 vs. 4 YARN Executors (Seconds)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "ag5ljhsr3kzk0b"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "closed": {
+                        "color": "blue",
+                        "text": "CLOSED"
+                      },
+                      "open": {
+                        "color": "green",
+                        "text": "OPEN"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity Tier"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "text": "0 - Low"
+                      },
+                      "1": {
+                        "text": "1 - Moderate"
+                      },
+                      "2": {
+                        "text": "2 - High"
+                      },
+                      "3": {
+                        "text": "3 - Critical"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Error \\(h\\)"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": -24
+                    },
+                    {
+                      "color": "red",
+                      "value": 24
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "enablePagination": true,
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Opened (UTC)"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "ag5ljhsr3kzk0b"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH champ AS (SELECT model_version FROM eonet_model_registry WHERE deployment_role = 'champion' LIMIT 1), latest_stream AS (SELECT DISTINCT ON (event_id) event_id, title, category_id, status, event_time_utc, closed_time_utc, ingested_at_utc FROM eonet_events_stream ORDER BY event_id, ingested_at_utc DESC), latest_preds AS (SELECT DISTINCT ON (event_id, model_version) event_id, model_version, elapsed_hours, pred_duration_hours, pred_severity_tier FROM eonet_predictions ORDER BY event_id, model_version, predicted_at_utc DESC), pivoted AS (  SELECT s.event_id, s.title, s.category_id, s.status, s.event_time_utc, s.closed_time_utc,     MAX(p.elapsed_hours) AS elapsed_hours, MAX(p.pred_severity_tier) AS severity_tier,     MAX(CASE WHEN p.model_version = 'v1_baseline' THEN p.pred_duration_hours END) AS v1_pred,     MAX(CASE WHEN p.model_version = 'v2_gbt' THEN p.pred_duration_hours END) AS v2_pred,     MAX(CASE WHEN p.model_version = 'v3_xgboost' THEN p.pred_duration_hours END) AS v3_pred,     MAX(CASE WHEN p.model_version = (SELECT model_version FROM champ) THEN p.pred_duration_hours END) AS champ_pred   FROM latest_stream s JOIN latest_preds p ON s.event_id = p.event_id   GROUP BY s.event_id, s.title, s.category_id, s.status, s.event_time_utc, s.closed_time_utc) SELECT event_id AS \"Event ID\", title AS \"Hazard Title\", category_id AS \"Category\", status AS \"Status\", severity_tier AS \"Severity Tier\", event_time_utc AS \"Opened (UTC)\", COALESCE(closed_time_utc::text, 'Pending (Open)') AS \"Actual Close (UTC)\", CASE WHEN status = 'closed' THEN ROUND(elapsed_hours::numeric, 1) ELSE NULL END AS \"Actual Dur (h)\", ROUND(v1_pred::numeric, 1) AS \"v1 Pred (h)\", CASE WHEN status = 'closed' THEN ROUND((v1_pred - elapsed_hours)::numeric, 2) ELSE NULL END AS \"v1 Error (h)\", ROUND(v2_pred::numeric, 1) AS \"v2 Pred (h)\", CASE WHEN status = 'closed' THEN ROUND((v2_pred - elapsed_hours)::numeric, 2) ELSE NULL END AS \"v2 Error (h)\", ROUND(v3_pred::numeric, 1) AS \"v3 Pred (h)\", CASE WHEN status = 'closed' THEN ROUND((v3_pred - elapsed_hours)::numeric, 2) ELSE NULL END AS \"v3 Error (h)\", CASE WHEN status = 'open' THEN (SELECT model_version || ' (CHAMPION)' FROM champ)      WHEN ABS(v3_pred - elapsed_hours) <= LEAST(ABS(v1_pred - elapsed_hours), ABS(v2_pred - elapsed_hours)) THEN 'v3_xgboost'      WHEN ABS(v2_pred - elapsed_hours) < ABS(v1_pred - elapsed_hours) THEN 'v2_gbt'      ELSE 'v1_baseline' END AS \"Best / Active Model\", event_time_utc + (CASE WHEN status = 'open' THEN champ_pred ELSE LEAST(v1_pred, v2_pred, v3_pred) END * INTERVAL '1 hour') AS \"Predicted Close (UTC)\" FROM pivoted ORDER BY event_time_utc DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Stream Events Lifecycle Forecast: Active Champion Close vs. Shadow Benchmark Errors",
+      "type": "table"
+    }
+  ]
+}
