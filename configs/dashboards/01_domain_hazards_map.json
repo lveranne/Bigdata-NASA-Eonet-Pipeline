@@ -5,8 +5,8 @@
     "name": "eonet-domain-map-v1",
     "namespace": "default",
     "uid": "bc9abd2d-124a-4c15-8ff5-689c29233d10",
-    "resourceVersion": "1795861942436000",
-    "generation": 17,
+    "resourceVersion": "1795862019654008",
+    "generation": 18,
     "creationTimestamp": "2026-11-27T20:48:07Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "718785334235136"
@@ -16,7 +16,7 @@
       "grafana.app/folder": "nasa-eonet",
       "grafana.app/saved-from-ui": "Grafana v13.3.2 (bd75498687)",
       "grafana.app/updatedBy": "user:dg5koiezjr7y8e",
-      "grafana.app/updatedTimestamp": "2026-11-28T10:32:22Z"
+      "grafana.app/updatedTimestamp": "2026-11-28T10:33:39Z"
     },
     "managedFields": [
       {
@@ -644,12 +644,12 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 16,
-                          "min": 9
+                          "fixed": 12,
+                          "max": 18,
+                          "min": 10
                         },
                         "symbol": {
-                          "fixed": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23111827%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M12%202C7.5%202%204%205.2%204%209.5c0%202.9%201.7%205.3%204.3%206.4-.6.9-1.5%201.6-2.8%201.9-.6.1-.8.9-.3%201.3C6.8%2020.4%209.2%2021%2012%2021c4.5%200%208-3.2%208-7.5%200-2.9-1.7-5.3-4.3-6.4.6-.9%201.5-1.6%202.8-1.9.6-.1.8-.9.3-1.3C17.2%202.6%2014.8%202%2012%202zm0%206.5a3%203%200%201%201%200%206%203%203%200%200%201%200-6z%22/%3E%3C/svg%3E",
+                          "fixed": "img/icons/unicons/eonet-cyclone.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -700,12 +700,12 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 16,
-                          "min": 9
+                          "fixed": 12,
+                          "max": 18,
+                          "min": 10
                         },
                         "symbol": {
-                          "fixed": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23111827%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M13.5%202c.3%202.7-1.1%204.6-2.7%206.2C9.2%209.8%208%2011.4%208%2014a4%204%200%200%200%208%200c0-1.5-.7-2.8-1.6-3.9.2%201.1-.4%202.1-1.3%202.5-.9.4-1.9-.1-2.2-1-.3-.9.1-2%20.9-3.1C12.7%207.1%2014.1%205.1%2013.5%202zm-1.5%2020C7.6%2022%204%2018.4%204%2014c0-3.8%202.4-6.7%204.7-8.9.5-.5%201.3-.1%201.2.6-.2%201.3.2%202.4.9%203.1C11.9%206.6%2013.4%204.3%2013.2%201.6c-.1-.7.7-1.1%201.2-.7C17.6%203.5%2020%207.6%2020%2013.5%2020%2018.2%2016.4%2022%2012%2022z%22/%3E%3C/svg%3E",
+                          "fixed": "img/icons/unicons/eonet-fire.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -756,12 +756,12 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 16,
-                          "min": 9
+                          "fixed": 12,
+                          "max": 18,
+                          "min": 10
                         },
                         "symbol": {
-                          "fixed": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23111827%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M11%202h2v4.2l2.6-2.6%201.4%201.4-4%204V11h2l4-4%201.4%201.4-2.6%202.6H22v2h-4.2l2.6%202.6-1.4%201.4-4-4h-2v2l4%204-1.4%201.4-2.6-2.6V22h-2v-4.2l-2.6%202.6-1.4-1.4%204-4v-2H9l-4%204-1.4-1.4%202.6-2.6H2v-2h4.2L3.6%208.4%205%207l4%204h2V9L7%205l1.4-1.4L11%206.2V2z%22/%3E%3C/svg%3E",
+                          "fixed": "img/icons/unicons/eonet-ice.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -812,12 +812,12 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 16,
-                          "min": 9
+                          "fixed": 12,
+                          "max": 18,
+                          "min": 10
                         },
                         "symbol": {
-                          "fixed": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23111827%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M12%202l2.2%203.5h-1.4L14%208h-4l1.2-2.5H9.8L12%202zm-3.5%208h7L21%2021H3l5.5-11z%22/%3E%3C/svg%3E",
+                          "fixed": "img/icons/unicons/eonet-volcano.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
@@ -868,12 +868,12 @@
                         },
                         "size": {
                           "field": "Severity",
-                          "fixed": 11,
-                          "max": 16,
-                          "min": 9
+                          "fixed": 12,
+                          "max": 18,
+                          "min": 10
                         },
                         "symbol": {
-                          "fixed": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23111827%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M12%203.1C9.2%206.5%206%2010.6%206%2014a6%206%200%200%200%2012%200c0-3.4-3.2-7.5-6-10.9z%22/%3E%3C/svg%3E",
+                          "fixed": "img/icons/unicons/eonet-flood.svg",
                           "mode": "fixed"
                         },
                         "symbolAlign": {
